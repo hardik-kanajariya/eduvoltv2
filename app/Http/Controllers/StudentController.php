@@ -6,9 +6,11 @@ use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Models\Student;
 use App\Services\StudentSearchService;
+use App\Services\StudentBulkOperationsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -16,10 +18,12 @@ use Illuminate\View\View;
 class StudentController extends Controller
 {
     protected $searchService;
+    protected $bulkOperationsService;
 
-    public function __construct(StudentSearchService $searchService)
+    public function __construct(StudentSearchService $searchService, StudentBulkOperationsService $bulkOperationsService)
     {
         $this->searchService = $searchService;
+        $this->bulkOperationsService = $bulkOperationsService;
     }
 
     /**
@@ -292,5 +296,216 @@ class StudentController extends Controller
         }
         
         return redirect()->route('students.index')->with('search_results', $students);
+    }
+
+    /**
+     * Import students from CSV (Issue #36).
+     */
+    public function importCsv(Request $request)
+    {
+        Gate::authorize('create', Student::class);
+
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:10240', // 10MB max
+            'skip_duplicates' => 'boolean',
+            'update_existing' => 'boolean',
+        ]);
+
+        try {
+            $options = [
+                'skip_duplicates' => $request->boolean('skip_duplicates', true),
+                'update_existing' => $request->boolean('update_existing', false),
+            ];
+
+            $result = $this->bulkOperationsService->importFromCsv($request->file('csv_file'), $options);
+
+            if ($result['job_id']) {
+                return redirect()->route('students.index')
+                    ->with('success', 'CSV import started. You will be notified when it completes.')
+                    ->with('job_id', $result['job_id']);
+            } else {
+                return redirect()->back()
+                    ->with('error', 'Import failed: ' . implode(', ', $result['details']));
+            }
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Import failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Bulk status update for students (Issue #36).
+     */
+    public function bulkStatusUpdate(Request $request)
+    {
+        Gate::authorize('update', Student::class);
+
+        $request->validate([
+            'student_ids' => 'required|array|min:1',
+            'student_ids.*' => 'exists:students,id',
+            'status' => 'required|in:active,inactive,graduated,transferred,suspended',
+            'graduation_date' => 'nullable|date|required_if:status,graduated',
+            'transfer_date' => 'nullable|date|required_if:status,transferred',
+            'transfer_school' => 'nullable|string|max:255|required_if:status,transferred',
+        ]);
+
+        try {
+            $options = [];
+            if ($request->status === 'graduated') {
+                $options['graduation_date'] = $request->graduation_date;
+            } elseif ($request->status === 'transferred') {
+                $options['transfer_date'] = $request->transfer_date;
+                $options['transfer_school'] = $request->transfer_school;
+            }
+
+            $result = $this->bulkOperationsService->bulkStatusUpdate(
+                $request->student_ids,
+                $request->status,
+                $options
+            );
+
+            return redirect()->route('students.index')
+                ->with('success', "Successfully updated {$result['success']} students. {$result['errors']} errors occurred.")
+                ->with('bulk_result', $result);
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Bulk update failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Bulk class assignment for students (Issue #36).
+     */
+    public function bulkClassAssignment(Request $request)
+    {
+        Gate::authorize('update', Student::class);
+
+        $request->validate([
+            'student_ids' => 'required|array|min:1',
+            'student_ids.*' => 'exists:students,id',
+            'grade' => 'nullable|string|max:10',
+            'section' => 'nullable|string|max:10',
+            'academic_year' => 'nullable|string|max:20',
+        ]);
+
+        try {
+            $assignment = array_filter([
+                'grade' => $request->grade,
+                'section' => $request->section,
+                'academic_year' => $request->academic_year,
+            ]);
+
+            if (empty($assignment)) {
+                return redirect()->back()
+                    ->with('error', 'Please select at least one field to update.');
+            }
+
+            $result = $this->bulkOperationsService->bulkClassAssignment(
+                $request->student_ids,
+                $assignment
+            );
+
+            return redirect()->route('students.index')
+                ->with('success', "Successfully updated {$result['success']} students. {$result['errors']} errors occurred.")
+                ->with('bulk_result', $result);
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Bulk assignment failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Mass communication to students and parents (Issue #36).
+     */
+    public function massCommunication(Request $request)
+    {
+        Gate::authorize('viewAny', Student::class);
+
+        $request->validate([
+            'student_ids' => 'required|array|min:1',
+            'student_ids.*' => 'exists:students,id',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string|max:5000',
+            'send_to_students' => 'boolean',
+            'send_to_parents' => 'boolean',
+        ]);
+
+        try {
+            $message = [
+                'subject' => $request->subject,
+                'body' => $request->message,
+                'sender_name' => Auth::user()->name ?? config('app.name'),
+            ];
+
+            $options = [
+                'send_to_students' => $request->boolean('send_to_students', true),
+                'send_to_parents' => $request->boolean('send_to_parents', true),
+            ];
+
+            $result = $this->bulkOperationsService->massCommunication(
+                $request->student_ids,
+                $message,
+                $options
+            );
+
+            return redirect()->route('students.index')
+                ->with('success', "Mass communication queued for {$result['queued']} recipients.")
+                ->with('communication_result', $result);
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Mass communication failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Bulk export students in various formats (Issue #36).
+     */
+    public function bulkExport(Request $request)
+    {
+        Gate::authorize('viewAny', Student::class);
+
+        $request->validate([
+            'student_ids' => 'required|array|min:1',
+            'student_ids.*' => 'exists:students,id',
+            'format' => 'required|in:csv,excel,pdf',
+            'fields' => 'nullable|array',
+            'fields.*' => 'string|in:admission_number,first_name,last_name,email,phone,date_of_birth,gender,grade,section,status,parent_name,parent_email,parent_phone,address,blood_group,medical_conditions,allergies',
+        ]);
+
+        try {
+            $result = $this->bulkOperationsService->exportStudents(
+                $request->student_ids,
+                $request->get('format'),
+                $request->fields ?? []
+            );
+
+            return response($result['content'])
+                ->header('Content-Type', 'application/octet-stream')
+                ->header('Content-Disposition', 'attachment; filename="' . $result['filename'] . '"');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Export failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get job progress for bulk operations (Issue #36).
+     */
+    public function getJobProgress(Request $request, string $jobId)
+    {
+        Gate::authorize('viewAny', Student::class);
+
+        $progress = $this->bulkOperationsService->getJobProgress($jobId);
+
+        if ($request->expectsJson()) {
+            return response()->json($progress);
+        }
+
+        return view('students.job-progress', compact('progress'));
     }
 }

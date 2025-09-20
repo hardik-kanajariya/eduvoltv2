@@ -126,6 +126,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/export', [StudentController::class, 'export'])->name('export');
     });
 
+    // Student Bulk Operations Routes (Issue #36)
+    Route::prefix('students/bulk')->name('students.bulk.')->middleware(['verified'])->group(function () {
+        Route::post('/import-csv', [StudentController::class, 'importCsv'])->name('import.csv');
+        Route::post('/status-update', [StudentController::class, 'bulkStatusUpdate'])->name('status.update');
+        Route::post('/class-assignment', [StudentController::class, 'bulkClassAssignment'])->name('class.assignment');
+        Route::post('/communication', [StudentController::class, 'massCommunication'])->name('communication');
+        Route::post('/export', [StudentController::class, 'bulkExport'])->name('export');
+        Route::get('/job-progress/{jobId}', [StudentController::class, 'getJobProgress'])->name('job.progress');
+    });
+
     // Admin routes (requires admin role)
     Route::middleware(['role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
         // User impersonation routes
