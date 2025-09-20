@@ -1,25 +1,28 @@
 # EduVoltV2 - Educational SaaS Platform
 
-EduVoltV2 is a Laravel 12-based educational platform in early development. The foundation includes Docker Sail for development, configured for MySQL/SQLite database support, with Tailwind CSS and Vite for frontend assets.
+EduVoltV2 is a Laravel 12-based educational SaaS platform with comprehensive multi-tenant architecture, validation systems, and event-driven design. The foundation includes Docker Sail for development, configured for MySQL/SQLite database support, with Tailwind CSS and Vite for frontend assets.
 
 **ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.**
 
 ## Current Repository State
 
-**ACTIVE DEVELOPMENT**: This repository contains a functional Laravel 12 application with basic foundation setup completed.
+**ACTIVE DEVELOPMENT**: This repository contains a functional Laravel 12 application with sophisticated foundation patterns implemented.
 
 ### Current Architecture
-- **Backend**: Laravel 12.x (PHP 8.2+) with standard MVC structure
-- **Database**: Configured for MySQL (Docker) + SQLite (local/testing)
+- **Backend**: Laravel 12.x (PHP 8.2+) with specialized form request validation system
+- **Database**: Dual-mode setup - SQLite default, MySQL via Docker Sail
+- **Queue System**: Redis-based with comprehensive health monitoring and testing tools
 - **Frontend**: Tailwind CSS 4.0 + Vite build system
-- **Development**: Docker Sail with MySQL container
-- **Health Monitoring**: Basic health check endpoint at `/health`
+- **Multi-tenancy**: Tenant-scoped validation rules and data isolation patterns
+- **Health Monitoring**: Advanced health check endpoint at `/health` with Redis, database, cache, and queue checks
 
 ### Key Implementation Patterns
-- Uses **database sessions** (not file-based) for multi-environment compatibility
-- **Database-first queue** configuration for background job processing
-- **Dual database setup**: MySQL for Docker Sail, SQLite for testing
-- **Modern Tailwind CSS 4.0** with Vite integration via `@tailwindcss/vite` plugin
+- **Advanced Form Validation**: Custom `BaseFormRequest` and `TenantScopedFormRequest` classes with helper traits
+- **Multi-tenant Data Scoping**: `TenantExists` validation rule and automatic tenant scoping
+- **Event-Driven Architecture**: `BaseEvent` classes with automatic metadata and structured event testing
+- **Custom Validation Rules**: `PhoneNumber`, `StrongPassword`, `AcademicGrade`, and `TenantExists` with flexible configuration
+- **Queue System**: Redis-based with Docker Sail, comprehensive testing scripts, and health monitoring
+- **Database-first sessions/cache/queue** for multi-environment compatibility
 
 ## Essential Development Workflows
 
@@ -44,51 +47,119 @@ cp .env.example .env
 # Health check: http://localhost/health
 ```
 
-### Key Commands by Task
+### Code Quality & Testing Workflow
 ```bash
-# Code Quality & Standards
+# MANDATORY before commits - NEVER CANCEL these
 ./vendor/bin/sail php vendor/bin/pint                    # Laravel Pint formatting (PSR-12)
-./vendor/bin/sail php artisan test                       # Run PHPUnit test suite
+./vendor/bin/sail php artisan test                       # Run PHPUnit test suite (49 tests, all passing)
 
-# Database Operations
-./vendor/bin/sail artisan migrate:fresh --seed           # Fresh DB with test data
-./vendor/bin/sail artisan tinker                         # Interactive PHP REPL
+# Queue system testing
+./vendor/bin/sail artisan queue:test --redis-check      # Test Redis connectivity
+./vendor/bin/sail artisan queue:test --dispatch="Test"  # Dispatch test job
+./manage-queue.sh health                                 # Full queue health check
+```
 
-# Asset Management  
-./vendor/bin/sail npm run build                          # Production asset build
-./vendor/bin/sail npm run dev                            # Development with HMR
+### Form Request Development Pattern
+```bash
+# Create tenant-scoped form request
+./vendor/bin/sail artisan make:request Student/StoreStudentRequest
 
-# Background Processing
-./vendor/bin/sail artisan queue:work                     # Process background jobs
+# Extend TenantScopedFormRequest and implement getTenantScopedRules()
+# Use validation helpers: $this->getRulesFor('name_rules'), $this->getPhoneRule()
+# Test with: ./vendor/bin/sail php artisan test tests/Feature/Student/
+```
+
+### Event System Development
+```bash
+# Create events and listeners (auto-discovered in app/Events/ and app/Listeners/)
+./vendor/bin/sail artisan make:event Audit/UserActionEvent
+./vendor/bin/sail artisan make:listener Audit/LogUserAction
+
+# Verify event discovery
+./vendor/bin/sail artisan event:list
+
+# Test events with EventFactory and EventTestingHelpers trait
 ```
 
 ## Current Implementation Patterns
 
-### Database Configuration
+### Multi-Tenant Form Request Architecture
+The project implements sophisticated form validation with automatic tenant scoping:
+
+**BaseFormRequest**: Foundation class with common validation patterns and tenant authorization
+```php
+// Use pre-defined patterns instead of manual rules
+'first_name' => $this->getRulesFor('name_rules'),
+'email' => $this->getRulesFor('email_rules', ['unique:users,email']),
+```
+
+**TenantScopedFormRequest**: Auto-applies tenant scoping to `exists` rules
+```php
+// Before: 'course_id' => ['required', 'exists:courses,id']
+// After: 'course_id' => ['required', 'exists:courses,id,tenant_id,5']
+protected function getTenantScopedRules(): array { /* implement rules */ }
+```
+
+**HasValidationHelpers Trait**: 30+ specialized helpers for educational domain
+```php
+$this->getAcademicYearRules()      // Current year ±10/+5
+$this->getStudentAgeRules(5, 100)  // Age validation with date constraints
+$this->getAcademicGradeRule('gpa') // Multiple grading systems
+$this->getCurrencyRules(0, 99999)  // Fee validation with decimal precision
+```
+
+### Custom Validation Rules (Business Logic)
+- **TenantExists**: Validates resources exist within tenant scope (`new TenantExists('courses', 'id', $tenantId)`)
+- **PhoneNumber**: International phone validation with country restrictions (`PhoneNumber::withCountryCode(['US'])`)
+- **StrongPassword**: Configurable strength levels (`StrongPassword::moderate()`)
+- **AcademicGrade**: Multi-system grade validation (percentage, GPA, letter grades, international systems)
+
+### Event-Driven Architecture with Testing
+**BaseEvent**: Auto-generates metadata (timestamp, environment, event class)
+```php
+// All events extend BaseEvent and implement getEventName() and getEventData()
+class UserActionEvent extends BaseEvent {
+    public function getEventName(): string { return 'user.action'; }
+}
+```
+
+**Event Testing Pattern**: Use `EventFactory` and `EventTestingHelpers` trait
+```php
+// In tests: $event = EventFactory::createUserActionEvent(['action' => 'delete']);
+$this->assertEventDispatched(UserActionEvent::class);
+$this->assertEventHasData(UserActionEvent::class, ['action' => 'delete']);
+```
+
+### Queue System & Redis Integration
+**Redis-First Queue**: Configured for background job processing with health monitoring
+```bash
+# Test Redis connectivity and dispatch jobs
+./vendor/bin/sail artisan queue:test --redis-check
+./vendor/bin/sail artisan queue:test --dispatch="Message"
+
+# Monitor queues with management script
+./manage-queue.sh status    # Queue status and failed jobs
+./manage-queue.sh health    # Full health check including Redis
+./manage-queue.sh monitor   # Real-time queue monitoring
+```
+
+**TestQueueJob**: Example job with proper error handling and logging
+- Implements `ShouldQueue` with timeout and retry configuration
+- Uses traits: `Dispatchable`, `InteractsWithQueue`, `Queueable`, `SerializesModels` (separate use statements)
+
+### Database Configuration Patterns
 - **Default**: SQLite for local development (`database/database.sqlite`)
 - **Docker**: MySQL via Sail container (`DB_HOST=mysql`)
-- **Sessions**: Database-stored sessions (table: `sessions`)
-- **Queue**: Database-driven job processing (table: `jobs`)
-- **Cache**: Database caching by default (table: `cache`)
+- **Testing**: SQLite with `APP_KEY` configured in `phpunit.xml`
+- **Sessions/Cache/Queue**: Database-driven for multi-environment compatibility
 
-### Frontend Asset Pipeline
-- **Build Tool**: Vite 7.x with Laravel integration
-- **CSS Framework**: Tailwind CSS 4.0 with `@tailwindcss/vite` plugin
-- **Entry Points**: `resources/css/app.css`, `resources/js/app.js`
-- **HMR**: Hot Module Replacement on `localhost:5173`
-
-### Application Structure
-```
-app/Http/Controllers/HealthController.php  # Health monitoring endpoint
-routes/web.php                            # Web routes with health check
-resources/views/welcome.blade.php         # Default Laravel welcome page
-database/migrations/                       # Core Laravel tables (users, cache, jobs)
-```
-
-### Key Configuration Files
-- `docker-compose.yml`: Sail configuration with MySQL 8.0
-- `vite.config.js`: Frontend build with Tailwind CSS integration
-- `.env.example`: Template with `APP_NAME=EduVoltV2` branding
+### Health Monitoring System
+**HealthController** at `/health` endpoint checks:
+- Database connectivity (PDO connection test)
+- Cache operations (write/read test)
+- Redis connectivity (ping and operations)
+- Queue system status (driver configuration)
+- Returns JSON with detailed status and application info
 
 ## Development Workflow Guidelines
 
@@ -105,6 +176,34 @@ database/migrations/                       # Core Laravel tables (users, cache, 
 # MANDATORY before commits - NEVER CANCEL these
 ./vendor/bin/sail php vendor/bin/pint                    # 1-2 minutes
 ./vendor/bin/sail php artisan test                       # 5-10 minutes, timeout 20+ minutes
+```
+
+### Testing Patterns (49 tests, 120 assertions)
+**Form Request Testing**: Validate rules, authorization, and tenant scoping
+```php
+$request = new StoreStudentRequest();
+$validator = Validator::make([], $request->rules());
+$this->assertTrue($validator->fails());
+```
+
+**Event Testing**: Use `EventTestingHelpers` trait and `EventFactory`
+```php
+use Tests\Support\EventTestingHelpers;
+$this->fakeEvents();
+$event = EventFactory::createUserActionEvent(['action' => 'create']);
+Event::dispatch($event);
+$this->assertEventDispatched(UserActionEvent::class);
+$this->assertEventHasData(UserActionEvent::class, ['action' => 'create']);
+```
+
+**Validation Rule Testing**: Custom rules use callback-based validation
+```php
+$rule = new PhoneNumber();
+$passes = true;
+$rule->validate('phone', '+1234567890', function() use (&$passes) {
+    $passes = false;
+});
+$this->assertTrue($passes);
 ```
 
 ### Debugging and Troubleshooting
