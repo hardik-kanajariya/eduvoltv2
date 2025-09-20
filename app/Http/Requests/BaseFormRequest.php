@@ -7,11 +7,10 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Base Form Request class for EduVoltV2
- * 
+ *
  * Provides common functionality for all form requests including:
  * - Tenant-scoped validation
  * - Consistent error message formatting
@@ -104,7 +103,7 @@ abstract class BaseFormRequest extends FormRequest
     protected function formatValidationErrors(Validator $validator): array
     {
         $errors = [];
-        
+
         foreach ($validator->errors()->messages() as $field => $messages) {
             $errors[$field] = [
                 'messages' => $messages,
@@ -141,7 +140,7 @@ abstract class BaseFormRequest extends FormRequest
         // TODO: Implement actual tenant access checking logic
         // This would typically check against a user_tenants pivot table
         // or similar multi-tenant access control mechanism
-        
+
         return true; // Placeholder - implement actual logic
     }
 
@@ -155,7 +154,7 @@ abstract class BaseFormRequest extends FormRequest
         }
 
         // TODO: Implement actual default tenant checking logic
-        
+
         return true; // Placeholder - implement actual logic
     }
 
@@ -184,7 +183,7 @@ abstract class BaseFormRequest extends FormRequest
     protected function addTenantScoping(array $rules): array
     {
         $tenantId = $this->getCurrentTenantId();
-        
+
         if ($tenantId === null) {
             return $rules;
         }
@@ -248,7 +247,7 @@ abstract class BaseFormRequest extends FormRequest
     protected function getRulesFor(string $pattern, array $additional = []): array
     {
         $commonRules = $this->getCommonRules();
-        
+
         if (!isset($commonRules[$pattern])) {
             throw new \InvalidArgumentException("Unknown validation pattern: {$pattern}");
         }

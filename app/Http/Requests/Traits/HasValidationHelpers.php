@@ -11,7 +11,7 @@ use App\Rules\TenantExists;
 
 /**
  * Trait providing common validation utilities for form requests.
- * 
+ *
  * This trait can be used to add standardized validation patterns
  * and helpers to any form request class.
  */
@@ -166,7 +166,7 @@ trait HasValidationHelpers
     protected function getUrlRules(bool $required = false): array
     {
         $rules = $required ? ['required'] : ['nullable'];
-        
+
         return array_merge($rules, [
             'url',
             'max:500',
@@ -213,7 +213,7 @@ trait HasValidationHelpers
      */
     protected function getPhoneRule(array $allowedCountries = [], bool $requireCountryCode = false): PhoneNumber
     {
-        return $requireCountryCode 
+        return $requireCountryCode
             ? PhoneNumber::withCountryCode($allowedCountries)
             : new PhoneNumber($allowedCountries, false);
     }
@@ -237,7 +237,7 @@ trait HasValidationHelpers
     protected function getStatusRules(array $allowedStatuses): array
     {
         $statusString = implode(',', $allowedStatuses);
-        
+
         return [
             'required',
             'string',
@@ -311,7 +311,7 @@ trait HasValidationHelpers
                 '0', 'false', 'no', 'off' => false,
                 default => $value,
             };
-            
+
             $this->merge([$field => $normalized]);
         }
     }

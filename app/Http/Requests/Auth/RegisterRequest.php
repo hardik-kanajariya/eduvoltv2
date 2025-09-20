@@ -9,7 +9,7 @@ use App\Rules\StrongPassword;
 
 /**
  * Form request for user registration.
- * 
+ *
  * Handles validation for new user registration including
  * password strength, email uniqueness, and basic profile information.
  */

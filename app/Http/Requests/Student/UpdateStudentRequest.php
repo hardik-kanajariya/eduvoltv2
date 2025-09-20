@@ -7,10 +7,11 @@ namespace App\Http\Requests\Student;
 use App\Http\Requests\TenantScopedFormRequest;
 use App\Http\Requests\Traits\HasValidationHelpers;
 use App\Rules\PhoneNumber;
+use Illuminate\Validation\Validator;
 
 /**
  * Form request for updating student records.
- * 
+ *
  * Demonstrates comprehensive usage of all validation components:
  * - Base tenant-scoped functionality
  * - Custom validation rules
@@ -30,9 +31,9 @@ class UpdateStudentRequest extends TenantScopedFormRequest
 
         return [
             'student_id' => [
-                'required', 
-                'string', 
-                'max:20', 
+                'required',
+                'string',
+                'max:20',
                 "unique:students,student_id,{$studentId},id"
             ],
             'first_name' => $this->getRulesFor('name_rules'),
@@ -73,7 +74,7 @@ class UpdateStudentRequest extends TenantScopedFormRequest
 
         // Additional authorization: user can only update students they have access to
         $student = $this->route('student');
-        
+
         return $this->user()->can('update', $student);
     }
 
@@ -146,12 +147,12 @@ class UpdateStudentRequest extends TenantScopedFormRequest
     {
         // Remove all non-digit characters except +
         $cleaned = preg_replace('/[^\d+]/', '', $phone);
-        
+
         // Add + if it starts with a digit and looks like international format
         if (preg_match('/^\d{10,}$/', $cleaned) && strlen($cleaned) > 10) {
             $cleaned = '+' . $cleaned;
         }
-        
+
         return $cleaned;
     }
 
@@ -174,9 +175,9 @@ class UpdateStudentRequest extends TenantScopedFormRequest
     /**
      * Get additional validation rules after base rules are applied.
      */
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (Validator $validator) {
             // Custom validation: graduation date must be after enrollment date
             if ($this->has('graduation_date') && $this->has('enrollment_date')) {
                 $enrollmentDate = $this->input('enrollment_date');

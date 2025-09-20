@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Validates that a resource exists within the specified tenant scope.
- * 
+ *
  * This rule ensures that when referencing other resources (like courses, users, etc.),
  * they belong to the same tenant as the current request context.
  */

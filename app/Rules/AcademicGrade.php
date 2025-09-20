@@ -9,7 +9,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
  * Validates academic grade/score based on different grading systems.
- * 
+ *
  * Supports multiple grading systems:
  * - Percentage (0-100)
  * - GPA (0.0-4.0)
@@ -78,7 +78,7 @@ class AcademicGrade implements ValidationRule
         }
 
         $numericValue = (float) $value;
-        
+
         if ($numericValue < 0 || $numericValue > 100) {
             $fail('The :attribute must be between 0 and 100.');
         }
@@ -95,7 +95,7 @@ class AcademicGrade implements ValidationRule
         }
 
         $numericValue = (float) $value;
-        
+
         if ($numericValue < 0.0 || $numericValue > 4.0) {
             $fail('The :attribute must be between 0.0 and 4.0.');
         }
@@ -112,7 +112,7 @@ class AcademicGrade implements ValidationRule
         }
 
         $grade = strtoupper(trim($value));
-        
+
         if (!in_array($grade, $this->allowedLetterGrades)) {
             $allowedGrades = implode(', ', $this->allowedLetterGrades);
             $fail("The :attribute must be one of the following grades: {$allowedGrades}.");
@@ -130,7 +130,7 @@ class AcademicGrade implements ValidationRule
         }
 
         $numericValue = (float) $value;
-        
+
         if ($numericValue < $this->min || $numericValue > $this->max) {
             $fail("The :attribute must be between {$this->min} and {$this->max}.");
         }

@@ -6,7 +6,7 @@ namespace App\Http\Requests;
 
 /**
  * Base Form Request for tenant-scoped resources
- * 
+ *
  * Automatically applies tenant scoping to all validation rules
  * and ensures the current user has access to the specified tenant.
  */
@@ -27,7 +27,7 @@ abstract class TenantScopedFormRequest extends BaseFormRequest
     public function rules(): array
     {
         $rules = $this->getTenantScopedRules();
-        
+
         // Automatically add tenant scoping to all rules
         return $this->addTenantScoping($rules);
     }
@@ -43,7 +43,7 @@ abstract class TenantScopedFormRequest extends BaseFormRequest
     protected function authorizeTenantAccess(): bool
     {
         $tenantId = $this->getCurrentTenantId();
-        
+
         if ($tenantId === null) {
             return false;
         }

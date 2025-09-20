@@ -10,7 +10,7 @@ use App\Rules\TenantExists;
 
 /**
  * Form request for creating or updating student records.
- * 
+ *
  * Automatically scoped to the current tenant and includes validation
  * for all student-specific fields including enrollment information.
  */
@@ -98,7 +98,7 @@ class StoreStudentRequest extends TenantScopedFormRequest
         $tenantId = $this->getCurrentTenantId();
         $year = date('Y');
         $sequence = str_pad((string) rand(1000, 9999), 4, '0', STR_PAD_LEFT);
-        
+
         return "STU{$tenantId}{$year}{$sequence}";
     }
 }

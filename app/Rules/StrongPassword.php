@@ -9,7 +9,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
  * Validates that a password meets security requirements.
- * 
+ *
  * Configurable password strength validation including:
  * - Minimum length
  * - Character type requirements (uppercase, lowercase, numbers, symbols)
@@ -96,7 +96,7 @@ class StrongPassword implements ValidationRule
         ];
 
         $lowerPassword = strtolower($password);
-        
+
         return in_array($lowerPassword, $commonPasswords);
     }
 

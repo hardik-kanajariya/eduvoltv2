@@ -9,7 +9,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
  * Validates phone number format with international support.
- * 
+ *
  * Supports various international phone number formats and can be configured
  * for specific country requirements.
  */
@@ -59,7 +59,7 @@ class PhoneNumber implements ValidationRule
         // Keep + at the beginning if present
         $hasPlus = str_starts_with($phone, '+');
         $cleaned = preg_replace('/[^\d]/', '', $phone);
-        
+
         return $hasPlus ? '+' . $cleaned : $cleaned;
     }
 
@@ -71,7 +71,7 @@ class PhoneNumber implements ValidationRule
         // Basic format validation - between 10 and 15 digits
         $digitsOnly = preg_replace('/[^\d]/', '', $phone);
         $length = strlen($digitsOnly);
-        
+
         return $length >= 10 && $length <= 15;
     }
 
