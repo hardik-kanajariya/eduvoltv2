@@ -24,8 +24,8 @@ class RegisterRequest extends BaseFormRequest
     public function rules(): array
     {
         $allowedRoleIds = Role::whereNotIn('name', ['super_admin', 'admin'])
-                             ->pluck('id')
-                             ->toArray();
+            ->pluck('id')
+            ->toArray();
 
         return [
             'name' => $this->getRulesFor('name_rules'),

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('provider_id')->nullable()->after('provider');
             $table->text('provider_token')->nullable()->after('provider_id');
             $table->string('avatar')->nullable()->after('provider_token');
-            
+
             // Add index for provider lookups
             $table->index(['provider', 'provider_id']);
         });

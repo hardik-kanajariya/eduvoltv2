@@ -18,7 +18,7 @@ class ImpersonationController extends Controller
     public function impersonate(Request $request, User $user): RedirectResponse
     {
         $currentUser = Auth::user();
-        
+
         // Check if the current user has permission to impersonate
         if (!$currentUser->hasRole(['super_admin', 'admin'])) {
             abort(403, 'Unauthorized to impersonate users.');
@@ -36,7 +36,7 @@ class ImpersonationController extends Controller
 
         // Store the original user ID in session
         Session::put('impersonating_original_user', Auth::id());
-        
+
         // Log the impersonation start
         $this->logImpersonation('started', $currentUser, $user);
 
@@ -57,7 +57,7 @@ class ImpersonationController extends Controller
 
         $originalUserId = Session::get('impersonating_original_user');
         $impersonatedUser = Auth::user();
-        
+
         // Find the original user
         $originalUser = User::find($originalUserId);
         if (!$originalUser) {

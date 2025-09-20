@@ -23,7 +23,7 @@ class ImpersonationMiddleware
         if (Auth::check() && Session::has('impersonating_original_user')) {
             $originalUserId = Session::get('impersonating_original_user');
             $originalUser = User::find($originalUserId);
-            
+
             if ($originalUser) {
                 // Share impersonation data with all views
                 View::share('isImpersonating', true);

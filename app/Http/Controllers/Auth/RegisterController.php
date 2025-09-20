@@ -21,8 +21,8 @@ class RegisterController extends Controller
     {
         // Get available roles for registration (excluding super admin roles)
         $roles = Role::whereNotIn('name', ['super_admin', 'admin'])
-                    ->orderBy('name')
-                    ->get();
+            ->orderBy('name')
+            ->get();
 
         return view('auth.register', [
             'roles' => $roles
