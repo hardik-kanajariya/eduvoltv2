@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Admin\ImpersonationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -70,6 +71,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware(['verified'])
         ->name('dashboard');
+
+    // Admin routes (requires admin role)
+    Route::middleware(['role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
+        // User impersonation routes
+        Route::post('/impersonate/{user}', [ImpersonationController::class, 'impersonate'])->name('impersonate');
+        Route::delete('/stop-impersonating', [ImpersonationController::class, 'stopImpersonating'])->name('stop-impersonating');
+    });
 });
 
 // Two Factor Authentication Challenge routes (for partially authenticated users)
