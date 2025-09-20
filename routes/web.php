@@ -187,6 +187,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/{report}/generate', [ReportController::class, 'generate'])->name('generate');
         Route::post('/{report}/export', [ReportController::class, 'export'])->name('export');
         Route::get('/{report}/download', [ReportController::class, 'download'])->name('download');
+        Route::get('/{report}/chart', [ReportController::class, 'chart'])->name('chart');
+        
+        // Dashboard charts endpoint
+        Route::get('/dashboard/charts', [ReportController::class, 'dashboardCharts'])->name('dashboard.charts');
     });
 
     // Admin routes (requires admin role)

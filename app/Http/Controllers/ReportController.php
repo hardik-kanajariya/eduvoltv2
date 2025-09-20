@@ -10,6 +10,7 @@ use App\Services\AttendanceReportService;
 use App\Services\AcademicPerformanceReportService;
 use App\Services\ReportBuilderService;
 use App\Services\ReportExportService;
+use App\Services\ChartService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -26,7 +27,8 @@ class ReportController extends Controller
         protected ReportBuilderService $reportBuilder,
         protected ReportExportService $exportService,
         protected AttendanceReportService $attendanceService,
-        protected AcademicPerformanceReportService $academicService
+        protected AcademicPerformanceReportService $academicService,
+        protected ChartService $chartService
     ) {
         $this->middleware('auth');
     }
@@ -599,6 +601,153 @@ class ReportController extends Controller
         ]);
     }
 
+    /**
+     * Generate chart data for report
+     */
+    public function chart(Request $request, Report $report): JsonResponse
+    {
+        $user = Auth::user();
+
+        if (!$report->canBeGeneratedBy($user)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to generate charts for this report',
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'chart_type' => 'nullable|string|in:line,bar,pie,doughnut,area,multi-line,multi-bar',
+            'chart_config' => 'nullable|array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid chart parameters',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            // Generate the report data first
+            $this->reportBuilder->setReport($report);
+            $reportData = $this->reportBuilder->generateReport();
+
+            // Extract chart data based on report type
+            $chartData = $this->extractChartData($reportData, $report->type);
+            
+            // Generate chart configuration
+            $chartType = $request->get('chart_type');
+            $chartConfig = $request->get('chart_config', []);
+            
+            if ($chartType) {
+                // Use specific chart type
+                $chart = $this->generateSpecificChart($chartData, $chartType, $chartConfig);
+            } else {
+                // Use default chart for report type
+                $chart = $this->chartService->getReportChartConfig(
+                    $report->type->value,
+                    $chartData,
+                    $chartConfig
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'chart' => $chart,
+                    'raw_data' => $chartData,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate chart: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get multiple charts for dashboard
+     */
+    public function dashboardCharts(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $userRoles = $user->roles->pluck('name')->toArray();
+
+        // Check basic permissions
+        if (empty(array_intersect($userRoles, ['admin', 'teacher']))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to access dashboard charts',
+            ], 403);
+        }
+
+        try {
+            $charts = [];
+
+            // Attendance Overview Chart
+            if (in_array('admin', $userRoles) || in_array('teacher', $userRoles)) {
+                $attendanceData = $this->attendanceService->generateWeeklyAttendanceReport([
+                    'start_date' => now()->subWeeks(4)->format('Y-m-d'),
+                    'end_date' => now()->format('Y-m-d'),
+                ]);
+                
+                $charts['attendance_overview'] = $this->chartService->generateAttendanceTrendChart(
+                    $attendanceData['chart_data'] ?? [],
+                    ['title' => 'Weekly Attendance Trends']
+                );
+            }
+
+            // Academic Performance Chart
+            if (in_array('admin', $userRoles) || in_array('teacher', $userRoles)) {
+                // Mock data for demonstration - would be real data in production
+                $gradeData = [
+                    'A' => 15,
+                    'B' => 25,
+                    'C' => 30,
+                    'D' => 20,
+                    'F' => 10,
+                ];
+                
+                $charts['grade_distribution'] = $this->chartService->generateGradeDistributionChart(
+                    $gradeData,
+                    ['title' => 'Current Grade Distribution']
+                );
+            }
+
+            // Monthly Stats Chart
+            if (in_array('admin', $userRoles)) {
+                $monthlyStats = [
+                    'January' => 92,
+                    'February' => 88,
+                    'March' => 94,
+                    'April' => 91,
+                    'May' => 89,
+                    'June' => 93,
+                ];
+                
+                $charts['monthly_performance'] = $this->chartService->generateLineChart(
+                    $monthlyStats,
+                    [
+                        'title' => 'Monthly School Performance',
+                        'label' => 'Performance Score (%)',
+                    ]
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $charts,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate dashboard charts: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     // Helper methods
 
     protected function getAvailableTypes($user): array
@@ -704,6 +853,51 @@ class ReportController extends Controller
             'html' => 'text/html',
             'json' => 'application/json',
             default => 'application/octet-stream',
+        };
+    }
+
+    // Helper methods for chart generation
+
+    protected function extractChartData(array $reportData, $reportType): array
+    {
+        // Extract relevant chart data based on report type
+        switch ($reportType->value) {
+            case 'attendance':
+                return $reportData['chart_data'] ?? $reportData['summary'] ?? [];
+                
+            case 'academic':
+                return $reportData['performance_data'] ?? $reportData['grades'] ?? [];
+                
+            case 'financial':
+                return $reportData['financial_summary'] ?? [];
+                
+            case 'student_profile':
+                return $reportData['demographics'] ?? [];
+                
+            default:
+                return $reportData['chart_data'] ?? [];
+        }
+    }
+
+    protected function generateSpecificChart(array $data, string $chartType, array $config = []): array
+    {
+        return match ($chartType) {
+            'line' => $this->chartService->generateLineChart($data, $config),
+            'bar' => $this->chartService->generateBarChart($data, $config),
+            'pie' => $this->chartService->generatePieChart($data, $config),
+            'doughnut' => $this->chartService->generateDoughnutChart($data, $config),
+            'area' => $this->chartService->generateAreaChart($data, $config),
+            'multi-line' => $this->chartService->generateMultiLineChart(
+                $data['series'] ?? [],
+                $data['labels'] ?? [],
+                $config
+            ),
+            'multi-bar' => $this->chartService->generateMultiBarChart(
+                $data['series'] ?? [],
+                $data['labels'] ?? [],
+                $config
+            ),
+            default => $this->chartService->generateLineChart($data, $config),
         };
     }
 }
