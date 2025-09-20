@@ -85,6 +85,14 @@ class Student extends Model
     // }
 
     /**
+     * Get all documents for this student.
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    /**
      * Scope to filter by grade.
      */
     public function scopeInGrade($query, string $grade)

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\StudentRegistrationController;
@@ -134,6 +135,36 @@ Route::middleware('auth')->group(function () {
         Route::post('/communication', [StudentController::class, 'massCommunication'])->name('communication');
         Route::post('/export', [StudentController::class, 'bulkExport'])->name('export');
         Route::get('/job-progress/{jobId}', [StudentController::class, 'getJobProgress'])->name('job.progress');
+    });
+
+    // Student Document Management Routes (Issue #37)
+    Route::prefix('students/{student}/documents')->name('documents.')->middleware(['verified'])->group(function () {
+        Route::get('/', [DocumentController::class, 'index'])->name('index');
+        Route::post('/', [DocumentController::class, 'store'])->name('store');
+        Route::get('/categories', [DocumentController::class, 'categories'])->name('categories');
+        Route::get('/upload-progress', [DocumentController::class, 'uploadProgress'])->name('upload.progress');
+    });
+
+    Route::prefix('documents')->name('documents.')->middleware(['verified'])->group(function () {
+        Route::get('/{document}', [DocumentController::class, 'show'])->name('show');
+        Route::put('/{document}', [DocumentController::class, 'update'])->name('update');
+        Route::delete('/{document}', [DocumentController::class, 'destroy'])->name('destroy');
+        Route::get('/{document}/download', [DocumentController::class, 'download'])->name('download');
+        Route::post('/{document}/version', [DocumentController::class, 'createVersion'])->name('version.create');
+        Route::post('/{document}/verify', [DocumentController::class, 'verify'])->name('verify');
+        Route::post('/{document}/archive', [DocumentController::class, 'archive'])->name('archive');
+        Route::post('/{document}/restore', [DocumentController::class, 'restore'])->name('restore');
+    });
+
+    // Document Bulk Operations Routes (Issue #37)
+    Route::prefix('documents/bulk')->name('documents.bulk.')->middleware(['verified'])->group(function () {
+        Route::post('/upload', [DocumentController::class, 'bulkUpload'])->name('upload');
+        Route::post('/categorize', [DocumentController::class, 'bulkCategorize'])->name('categorize');
+        Route::post('/delete', [DocumentController::class, 'bulkDelete'])->name('delete');
+        Route::post('/archive', [DocumentController::class, 'bulkArchive'])->name('archive');
+        Route::post('/download', [DocumentController::class, 'bulkDownload'])->name('download');
+        Route::get('/download/{filename}', [DocumentController::class, 'downloadBulkFile'])->name('download.file');
+        Route::get('/stats', [DocumentController::class, 'bulkStats'])->name('stats');
     });
 
     // Admin routes (requires admin role)
