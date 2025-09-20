@@ -21,11 +21,11 @@ Route::middleware('guest')->group(function () {
     // Login routes
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-    
+
     // Registration routes
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
-    
+
     // Password reset routes with rate limiting
     Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])
@@ -40,7 +40,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Logout route
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    
+
     // Email verification routes
     Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
@@ -49,14 +49,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
-        
+
     // Two Factor Authentication routes
     Route::get('/two-factor', [TwoFactorController::class, 'show'])->name('two-factor.show');
     Route::post('/two-factor', [TwoFactorController::class, 'store'])->name('two-factor.store');
     Route::delete('/two-factor', [TwoFactorController::class, 'destroy'])->name('two-factor.destroy');
     Route::post('/two-factor/recovery-codes', [TwoFactorController::class, 'recoveryCodes'])->name('two-factor.recovery-codes');
     Route::get('/two-factor/qr-code', [TwoFactorController::class, 'qrCode'])->name('two-factor.qr-code');
-    
+
     // Dashboard route (requires email verification)
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('verified')

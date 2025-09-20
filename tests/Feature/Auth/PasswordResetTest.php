@@ -104,7 +104,7 @@ class PasswordResetTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['email']);
-        
+
         // Verify password was not changed
         $this->assertTrue(Hash::check('password', $user->fresh()->password));
     }
@@ -125,7 +125,7 @@ class PasswordResetTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['password']);
-        
+
         // Verify password was not changed
         $this->assertTrue(Hash::check('password', $user->fresh()->password));
     }
@@ -146,7 +146,7 @@ class PasswordResetTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['password']);
-        
+
         // Verify password was not changed
         $this->assertTrue(Hash::check('password', $user->fresh()->password));
     }

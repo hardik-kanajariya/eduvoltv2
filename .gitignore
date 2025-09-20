@@ -34,3 +34,5 @@ clover.xml
 # Static analysis
 phpstan.neon
 .phpstan.result.cache
+/resources/views/vendor
+/docker

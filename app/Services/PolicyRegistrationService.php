@@ -46,7 +46,7 @@ class PolicyRegistrationService
 
         foreach ($finder as $file) {
             $policyClass = $this->getClassFromFile($file->getPathname());
-            
+
             if (!$policyClass || !class_exists($policyClass)) {
                 continue;
             }
@@ -57,7 +57,7 @@ class PolicyRegistrationService
             }
 
             $modelClass = $this->getModelClassFromPolicy($policyClass);
-            
+
             if ($modelClass && class_exists($modelClass)) {
                 $policies[$modelClass] = $policyClass;
             }
@@ -110,7 +110,7 @@ class PolicyRegistrationService
 
     /**
      * Get the model class name from a policy class name.
-     * 
+     *
      * Follows Laravel convention: UserPolicy -> User model
      */
     protected function getModelClassFromPolicy(string $policyClass): ?string
@@ -124,7 +124,7 @@ class PolicyRegistrationService
         }
 
         $modelName = Str::replaceLast('Policy', '', $className);
-        
+
         // Try common model locations
         $possibleModelClasses = [
             "App\\Models\\{$modelName}",

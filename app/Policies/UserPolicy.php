@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\User;
-use App\Policies\BaseTenantPolicy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -29,7 +28,7 @@ class UserPolicy extends BaseTenantPolicy
 
         // Add additional authorization logic here
         // For example: check if user has 'manage-users' permission
-        
+
         return true; // Allow if basic tenant checks pass
     }
 
@@ -65,7 +64,7 @@ class UserPolicy extends BaseTenantPolicy
 
         // Add creation-specific logic
         // For example: check if user has 'create-users' permission
-        
+
         return true;
     }
 
@@ -79,7 +78,7 @@ class UserPolicy extends BaseTenantPolicy
         }
 
         // Add update-specific logic
-        // For example: users can update their own profile, 
+        // For example: users can update their own profile,
         // or user needs 'edit-users' permission for others
         if ($user && $model instanceof User && $user->id === $model->id) {
             return true;
@@ -120,7 +119,7 @@ class UserPolicy extends BaseTenantPolicy
         // Add force deletion-specific logic
         // This is typically more restricted than soft delete
         // For example: only super admins can permanently delete users
-        
+
         return false; // Deny by default - implement proper permission checking
     }
 
@@ -135,7 +134,7 @@ class UserPolicy extends BaseTenantPolicy
 
         // Add restoration-specific logic
         // For example: check if user has 'restore-users' permission
-        
+
         return true;
     }
 
@@ -168,7 +167,7 @@ class UserPolicy extends BaseTenantPolicy
 
         // Add role assignment logic
         // For example: only administrators can assign roles
-        
+
         return false; // Deny by default - implement proper permission checking
     }
 
@@ -183,7 +182,7 @@ class UserPolicy extends BaseTenantPolicy
 
         // Check if user has permission for bulk operations
         // This might require special permissions
-        
+
         return false; // Deny by default - implement proper permission checking
     }
 }

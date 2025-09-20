@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -29,7 +28,7 @@ return new class extends Migration
             $table->string('parent_phone')->nullable();
             $table->string('parent_email')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->index(['tenant_id', 'grade']);
             $table->index(['tenant_id', 'section']);

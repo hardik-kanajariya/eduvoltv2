@@ -30,16 +30,16 @@ class CleanupPasswordResetTokens extends Command
     {
         $days = (int) $this->option('days');
         $onlyExpired = $this->option('expired');
-        
+
         $this->info('Starting password reset token cleanup...');
-        
+
         if ($onlyExpired) {
             // Clean only expired tokens (older than configured time)
             $expiredTime = now()->subMinutes(config('auth.passwords.users.expire', 60));
             $deletedCount = DB::table('password_reset_tokens')
                 ->where('created_at', '<', $expiredTime)
                 ->delete();
-                
+
             $this->info("Cleaned up {$deletedCount} expired password reset tokens.");
         } else {
             // Clean tokens older than specified days
@@ -47,14 +47,14 @@ class CleanupPasswordResetTokens extends Command
             $deletedCount = DB::table('password_reset_tokens')
                 ->where('created_at', '<', $cutoffTime)
                 ->delete();
-                
+
             $this->info("Cleaned up {$deletedCount} password reset tokens older than {$days} days.");
         }
-        
+
         // Show remaining tokens count
         $remainingCount = DB::table('password_reset_tokens')->count();
         $this->info("Remaining password reset tokens: {$remainingCount}");
-        
+
         return self::SUCCESS;
     }
 }

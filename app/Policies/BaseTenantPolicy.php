@@ -8,6 +8,7 @@ use App\Policies\Contracts\TenantAware;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Base Policy class with built-in tenant scoping
@@ -51,17 +52,19 @@ abstract class BaseTenantPolicy implements TenantAware
     /**
      * Check if the authenticated user can access the specified tenant.
      */
-    public function userCanAccessTenant(?int $tenantId): bool
+    public function userCanAccessTenant(?int $tenantId, ?Authenticatable $user = null): bool
     {
         if ($tenantId === null) {
             return false;
         }
 
-        // TODO: Implement actual tenant access checking logic
-        // This would typically check against a user_tenants pivot table
-        // or similar multi-tenant access control mechanism
-        
-        return true; // Placeholder - implement actual logic
+        $user = $user ?? Auth::user();
+        if (!$user) {
+            return false;
+        }
+
+        // Check if user belongs to the tenant
+        return isset($user->tenant_id) && (int) $user->tenant_id === $tenantId;
     }
 
     /**
@@ -69,21 +72,21 @@ abstract class BaseTenantPolicy implements TenantAware
      */
     protected function getCurrentTenantId(?Authenticatable $user = null): ?int
     {
-        $user = $user ?? auth()->user();
-        
+        $user = $user ?? Auth::user();
+
         if (!$user) {
             return null;
         }
 
         // TODO: Implement getting user's default tenant
         // This would typically come from a user property or relationship
-        
+
         return null; // Placeholder - implement actual logic
     }
 
     /**
      * Authorize action with tenant scoping.
-     * 
+     *
      * This method should be called before any policy method to ensure
      * the operation is allowed within the tenant context.
      */
@@ -96,7 +99,7 @@ abstract class BaseTenantPolicy implements TenantAware
         // If model is provided, check it belongs to the tenant
         if ($model !== null) {
             $modelTenantId = $this->getTenantIdFromModel($model);
-            
+
             if ($modelTenantId === null) {
                 return false;
             }
@@ -107,17 +110,18 @@ abstract class BaseTenantPolicy implements TenantAware
             }
 
             // Check user can access the model's tenant
-            return $this->userCanAccessTenant($modelTenantId);
+            return $this->userCanAccessTenant($modelTenantId, $user);
         }
 
         // If no model but tenant ID is provided, check user access
         if ($tenantId !== null) {
-            return $this->userCanAccessTenant($tenantId);
+            return $this->userCanAccessTenant($tenantId, $user);
         }
 
         // If neither model nor tenant ID, check user has default tenant
         $userTenantId = $this->getCurrentTenantId($user);
-        return $userTenantId !== null && $this->userCanAccessTenant($userTenantId);
+
+        return $userTenantId !== null && $this->userCanAccessTenant($userTenantId, $user);
     }
 
     /**
@@ -185,7 +189,7 @@ abstract class BaseTenantPolicy implements TenantAware
 
     /**
      * Helper method to create a model within tenant context.
-     * 
+     *
      * @param ?Authenticatable $user
      * @param array $attributes Model attributes to create
      * @param ?int $tenantId Specific tenant ID (uses user's default if null)
@@ -198,12 +202,12 @@ abstract class BaseTenantPolicy implements TenantAware
 
         // Use provided tenant ID or user's default
         $targetTenantId = $tenantId ?? $this->getCurrentTenantId($user);
-        
+
         if ($targetTenantId === null) {
             return false;
         }
 
-        return $this->userCanAccessTenant($targetTenantId);
+        return $this->userCanAccessTenant($targetTenantId, $user);
     }
 
     /**
@@ -219,7 +223,8 @@ abstract class BaseTenantPolicy implements TenantAware
         // If tenant_id is being changed, ensure user can access target tenant
         if (isset($attributes['tenant_id'])) {
             $newTenantId = (int) $attributes['tenant_id'];
-            return $this->userCanAccessTenant($newTenantId);
+
+            return $this->userCanAccessTenant($newTenantId, $user);
         }
 
         return true;
@@ -236,6 +241,6 @@ abstract class BaseTenantPolicy implements TenantAware
         }
 
         // Must have access to target tenant
-        return $this->userCanAccessTenant($targetTenantId);
+        return $this->userCanAccessTenant($targetTenantId, $user);
     }
 }

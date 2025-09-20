@@ -2,22 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Permission\Models\Permission as SpatiePermission;
 
-class Permission extends Model
+class Permission extends SpatiePermission
 {
-    use HasFactory;
-
-    protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'resource',
-        'action',
-    ];
-
     /**
      * Educational system permissions grouped by resource.
      */
@@ -79,14 +67,6 @@ class Permission extends Model
     ];
 
     /**
-     * Get the roles that have this permission.
-     */
-    public function roles(): BelongsToMany
-    {
-        return $this->belongsToMany(Role::class, 'role_permission');
-    }
-
-    /**
      * Create all educational permissions.
      */
     public static function createEducationalPermissions(): void
@@ -94,7 +74,7 @@ class Permission extends Model
         foreach (static::EDUCATIONAL_PERMISSIONS as $resource => $permissions) {
             foreach ($permissions as $slug => $name) {
                 [$resourceName, $action] = explode('.', $slug);
-                
+
                 static::updateOrCreate(
                     ['slug' => $slug],
                     [

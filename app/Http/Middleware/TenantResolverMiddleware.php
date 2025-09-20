@@ -16,7 +16,7 @@ class TenantResolverMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $tenant = $this->resolveTenant($request);
-        
+
         if (!$tenant) {
             return $this->handleTenantNotFound($request);
         }
@@ -28,7 +28,7 @@ class TenantResolverMiddleware
         // Store tenant in application context
         app()->instance('tenant', $tenant);
         app()->instance('tenant.id', $tenant->id);
-        
+
         // Store in session for easy access
         session(['tenant' => $tenant]);
 
@@ -42,13 +42,14 @@ class TenantResolverMiddleware
     {
         // Try subdomain-based detection first
         $subdomain = $this->extractSubdomain($request);
-        
+
         if ($subdomain) {
             return $this->getTenantBySubdomain($subdomain);
         }
 
         // Fallback to domain-based detection
         $domain = $request->getHost();
+
         return $this->getTenantByDomain($domain);
     }
 
@@ -80,7 +81,7 @@ class TenantResolverMiddleware
     protected function getTenantBySubdomain(string $subdomain): ?Tenant
     {
         $cacheKey = "tenant:subdomain:{$subdomain}";
-        
+
         return Cache::remember($cacheKey, 3600, function () use ($subdomain) {
             return Tenant::findBySubdomain($subdomain);
         });
@@ -92,7 +93,7 @@ class TenantResolverMiddleware
     protected function getTenantByDomain(string $domain): ?Tenant
     {
         $cacheKey = "tenant:domain:{$domain}";
-        
+
         return Cache::remember($cacheKey, 3600, function () use ($domain) {
             return Tenant::where('domain', $domain)->first();
         });

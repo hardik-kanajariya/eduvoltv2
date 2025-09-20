@@ -46,9 +46,9 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            
+
             $this->clearLoginAttempts($request);
-            
+
             return $this->authenticated($request, Auth::user())
                 ?: redirect()->intended(route('dashboard'));
         }

@@ -6,7 +6,6 @@ namespace Tests\Unit\Services;
 
 use App\Services\PolicyRegistrationService;
 use Tests\TestCase;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * Test the PolicyRegistrationService

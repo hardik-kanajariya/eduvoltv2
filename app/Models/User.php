@@ -6,9 +6,9 @@ use App\Models\Traits\HasTwoFactorAuthentication;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -16,6 +16,12 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory;
     use Notifiable;
     use HasTwoFactorAuthentication;
+    use HasRoles;
+
+    /**
+     * The guard name for Spatie permissions.
+     */
+    protected $guard_name = 'web';
 
     /**
      * The attributes that are mass assignable.
@@ -65,97 +71,36 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Get the roles assigned to the user.
+     * Get the team for Spatie permissions (tenant context).
      */
-    public function roles(): BelongsToMany
+    public function getTeamId(): ?int
     {
-        return $this->belongsToMany(Role::class, 'user_role')
-            ->withPivot(['tenant_id', 'assigned_at', 'expires_at'])
-            ->withTimestamps();
+        return $this->tenant_id;
     }
 
     /**
-     * Check if user has a specific role within a tenant.
+     * Assign a role to the user within a tenant using Spatie.
      */
-    public function hasRole(string $role, ?int $tenantId = null): bool
+    public function assignRoleInTenant(string $role, int $tenantId): self
     {
-        $query = $this->roles()->where('slug', $role);
-        
-        if ($tenantId) {
-            $query->wherePivot('tenant_id', $tenantId);
-        }
-        
-        return $query->exists();
-    }
-
-    /**
-     * Check if user has any of the given roles within a tenant.
-     */
-    public function hasAnyRole(array $roles, ?int $tenantId = null): bool
-    {
-        $query = $this->roles()->whereIn('slug', $roles);
-        
-        if ($tenantId) {
-            $query->wherePivot('tenant_id', $tenantId);
-        }
-        
-        return $query->exists();
-    }
-
-    /**
-     * Check if user has a specific permission within a tenant.
-     */
-    public function hasPermission(string $permission, ?int $tenantId = null): bool
-    {
-        $query = $this->roles();
-        
-        if ($tenantId) {
-            $query->wherePivot('tenant_id', $tenantId);
-        }
-        
-        return $query->whereHas('permissions', function ($query) use ($permission) {
-            $query->where('slug', $permission);
-        })->exists();
-    }
-
-    /**
-     * Assign a role to the user within a tenant.
-     */
-    public function assignRole(Role|string $role, int $tenantId): self
-    {
-        if (is_string($role)) {
-            $role = Role::where('slug', $role)->firstOrFail();
-        }
-
-        $this->roles()->syncWithoutDetaching([
-            $role->id => [
-                'tenant_id' => $tenantId,
-                'assigned_at' => now(),
-            ]
-        ]);
+        $this->assignRole($role, $tenantId);
 
         return $this;
     }
 
     /**
-     * Remove a role from the user within a tenant.
+     * Check if user has role in specific tenant using Spatie.
      */
-    public function removeRole(Role|string $role, int $tenantId): self
+    public function hasRoleInTenant(string $role, int $tenantId): bool
     {
-        if (is_string($role)) {
-            $role = Role::where('slug', $role)->firstOrFail();
-        }
-
-        $this->roles()->wherePivot('tenant_id', $tenantId)->detach($role->id);
-
-        return $this;
+        return $this->hasRole($role, $tenantId);
     }
 
     /**
-     * Get user's roles for a specific tenant.
+     * Check if user has permission in specific tenant using Spatie.
      */
-    public function rolesForTenant(int $tenantId): BelongsToMany
+    public function hasPermissionInTenant(string $permission, int $tenantId): bool
     {
-        return $this->roles()->wherePivot('tenant_id', $tenantId);
+        return $this->hasPermissionTo($permission, $tenantId);
     }
 }

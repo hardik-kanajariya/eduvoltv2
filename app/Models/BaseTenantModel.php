@@ -48,7 +48,7 @@ abstract class BaseTenantModel extends Model
         if ($tenantId = tenantId()) {
             return $query->where('tenant_id', $tenantId);
         }
-        
+
         return $query;
     }
 
@@ -90,11 +90,11 @@ abstract class BaseTenantModel extends Model
     public function getFillable(): array
     {
         $fillable = parent::getFillable();
-        
+
         if (!in_array('tenant_id', $fillable)) {
             $fillable[] = 'tenant_id';
         }
-        
+
         return $fillable;
     }
 }

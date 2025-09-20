@@ -27,7 +27,7 @@ class PolicySystemIntegrationTest extends TestCase
     public function test_base_tenant_policy_can_be_instantiated(): void
     {
         // Create a concrete implementation for testing
-        $policy = new class extends BaseTenantPolicy {
+        $policy = new class () extends BaseTenantPolicy {
             // Concrete implementation for testing
         };
 
@@ -39,7 +39,7 @@ class PolicySystemIntegrationTest extends TestCase
         // This test ensures that the AppServiceProvider can boot without errors
         // and that the policy registration service is properly registered
         $this->expectNotToPerformAssertions();
-        
+
         // Re-boot the application to test the service provider
         $this->app->make('App\Providers\AppServiceProvider')->boot();
     }

@@ -46,7 +46,7 @@ class EmailVerificationTest extends TestCase
     public function test_email_can_be_verified_with_valid_hash(): void
     {
         Event::fake();
-        
+
         $user = User::factory()->unverified()->create();
 
         $verificationUrl = URL::temporarySignedRoute(

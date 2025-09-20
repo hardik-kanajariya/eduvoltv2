@@ -27,7 +27,7 @@ class ExampleUserController extends Controller
 
         // In a real implementation, you would:
         // $users = User::where('tenant_id', auth()->user()->tenant_id)->get();
-        
+
         return response()->json([
             'message' => 'Users listed successfully',
             'note' => 'Policy check passed - user can view users in their tenant'
@@ -41,10 +41,10 @@ class ExampleUserController extends Controller
     {
         // In a real implementation, you would:
         // $user = User::findOrFail($userId);
-        
+
         // For demonstration, create a mock user
         $user = new User(['id' => $userId, 'tenant_id' => 1]);
-        
+
         // Policy automatically checks tenant ownership
         $this->authorize('view', $user);
 
@@ -81,10 +81,10 @@ class ExampleUserController extends Controller
     {
         // In a real implementation:
         // $user = User::findOrFail($userId);
-        
+
         // For demonstration
         $user = new User(['id' => $userId, 'tenant_id' => 1]);
-        
+
         // Policy checks tenant ownership
         $this->authorize('update', $user);
 
@@ -102,10 +102,10 @@ class ExampleUserController extends Controller
     {
         // In a real implementation:
         // $user = User::findOrFail($userId);
-        
+
         // For demonstration
         $user = new User(['id' => $userId, 'tenant_id' => 1]);
-        
+
         // Policy checks tenant ownership
         $this->authorize('delete', $user);
 
@@ -123,10 +123,10 @@ class ExampleUserController extends Controller
     {
         // In a real implementation:
         // $user = User::findOrFail($userId);
-        
+
         // For demonstration
         $user = new User(['id' => $userId, 'tenant_id' => 1]);
-        
+
         // Use custom policy method
         $this->authorize('changePassword', $user);
 
@@ -144,10 +144,10 @@ class ExampleUserController extends Controller
     {
         // In a real implementation:
         // $user = User::findOrFail($userId);
-        
+
         // For demonstration
         $user = new User(['id' => $userId, 'tenant_id' => 1]);
-        
+
         // Check if user can transfer to target tenant
         if (!$user->getPolicy()->transfer(auth()->user(), $user, $targetTenantId)) {
             abort(403, 'Cannot transfer user to target tenant');
@@ -168,10 +168,10 @@ class ExampleUserController extends Controller
     {
         // In a real implementation:
         // $user = User::findOrFail($userId);
-        
+
         // For demonstration
         $user = new User(['id' => $userId, 'tenant_id' => 1]);
-        
+
         $permissions = [
             'can_view' => \Gate::allows('view', $user),
             'can_update' => \Gate::allows('update', $user),

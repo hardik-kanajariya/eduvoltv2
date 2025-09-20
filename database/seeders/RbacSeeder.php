@@ -19,7 +19,7 @@ class RbacSeeder extends Seeder
         // Create system-level roles (non-tenant specific)
         $this->createSystemRoles();
 
-        // Create educational roles for tenants  
+        // Create educational roles for tenants
         $this->createEducationalRoles();
     }
 

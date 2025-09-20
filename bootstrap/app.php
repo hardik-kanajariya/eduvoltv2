@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'tenant' => \App\Http\Middleware\TenantResolverMiddleware::class,
         ]);
-        
+
         // Apply tenant middleware to web routes by default
         $middleware->web(append: [
             \App\Http\Middleware\TenantResolverMiddleware::class,

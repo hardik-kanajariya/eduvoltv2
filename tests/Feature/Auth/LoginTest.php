@@ -7,7 +7,6 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
@@ -79,7 +78,8 @@ class LoginTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['email']);
-        $this->assertStringContainsString('Too many login attempts', 
+        $this->assertStringContainsString(
+            'Too many login attempts',
             session('errors')->first('email')
         );
     }
@@ -124,7 +124,7 @@ class LoginTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        
+
         // Should be able to make another attempt without rate limiting
         Auth::logout();
         $this->post('/login', [
@@ -138,9 +138,10 @@ class LoginTest extends TestCase
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
-        
+
         $response->assertSessionHasErrors(['email']);
-        $this->assertStringNotContainsString('Too many login attempts', 
+        $this->assertStringNotContainsString(
+            'Too many login attempts',
             session('errors')->first('email') ?? ''
         );
     }
@@ -151,7 +152,7 @@ class LoginTest extends TestCase
     public function test_users_can_logout(): void
     {
         $user = User::factory()->create();
-        
+
         $this->actingAs($user);
         $this->assertAuthenticated();
 

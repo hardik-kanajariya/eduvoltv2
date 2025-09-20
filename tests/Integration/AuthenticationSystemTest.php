@@ -19,7 +19,7 @@ class AuthenticationSystemTest extends TestCase
         // Test route definitions exist - these would normally be checked via Route::has()
         $expectedRoutes = [
             'login',
-            'register', 
+            'register',
             'password.request',
             'password.email',
             'password.reset',
@@ -38,7 +38,7 @@ class AuthenticationSystemTest extends TestCase
 
         // For now, just ensure the routes file contains our expected routes
         $routesContent = file_get_contents(__DIR__ . '/../../routes/web.php');
-        
+
         $this->assertStringContainsString('LoginController', $routesContent);
         $this->assertStringContainsString('RegisterController', $routesContent);
         $this->assertStringContainsString('EmailVerificationController', $routesContent);
@@ -53,7 +53,7 @@ class AuthenticationSystemTest extends TestCase
     {
         $controllers = [
             'App\Http\Controllers\Auth\LoginController',
-            'App\Http\Controllers\Auth\RegisterController', 
+            'App\Http\Controllers\Auth\RegisterController',
             'App\Http\Controllers\Auth\EmailVerificationController',
             'App\Http\Controllers\Auth\PasswordResetController',
             'App\Http\Controllers\DashboardController',
@@ -61,7 +61,7 @@ class AuthenticationSystemTest extends TestCase
 
         foreach ($controllers as $controller) {
             $this->assertTrue(
-                class_exists($controller), 
+                class_exists($controller),
                 "Controller {$controller} should exist"
             );
         }
@@ -79,7 +79,7 @@ class AuthenticationSystemTest extends TestCase
 
         foreach ($requests as $request) {
             $this->assertTrue(
-                class_exists($request), 
+                class_exists($request),
                 "Form request {$request} should exist"
             );
         }
@@ -118,7 +118,7 @@ class AuthenticationSystemTest extends TestCase
 
         foreach ($views as $view) {
             $this->assertFileExists(
-                __DIR__ . '/../../' . $view, 
+                __DIR__ . '/../../' . $view,
                 "View {$view} should exist"
             );
         }
@@ -132,10 +132,10 @@ class AuthenticationSystemTest extends TestCase
         $this->assertTrue(class_exists('App\Models\User'));
 
         $user = new \App\Models\User();
-        
+
         // Test that User implements MustVerifyEmail
         $this->assertInstanceOf(
-            \Illuminate\Contracts\Auth\MustVerifyEmail::class, 
+            \Illuminate\Contracts\Auth\MustVerifyEmail::class,
             $user
         );
 
@@ -168,12 +168,12 @@ class AuthenticationSystemTest extends TestCase
     public function test_user_factory_configuration(): void
     {
         $this->assertTrue(class_exists('Database\Factories\UserFactory'));
-        
+
         $factory = new \Database\Factories\UserFactory();
-        
+
         // Test that unverified method exists
         $this->assertTrue(method_exists($factory, 'unverified'));
-        
+
         // Test default definition includes email_verified_at
         $definition = $factory->definition();
         $this->assertArrayHasKey('email_verified_at', $definition);
@@ -207,13 +207,13 @@ class AuthenticationSystemTest extends TestCase
     public function test_environment_configuration(): void
     {
         $envContent = file_get_contents(__DIR__ . '/../../.env');
-        
+
         // Test that session driver is set to database
         $this->assertStringContainsString('SESSION_DRIVER=database', $envContent);
-        
+
         // Test that app key is set
         $this->assertStringContainsString('APP_KEY=', $envContent);
-        
+
         // Test that database is configured
         $this->assertStringContainsString('DB_CONNECTION=', $envContent);
     }
@@ -225,11 +225,11 @@ class AuthenticationSystemTest extends TestCase
     {
         $this->assertFileExists(__DIR__ . '/../../docs/AUTHENTICATION.md');
         $this->assertFileExists(__DIR__ . '/../../docs/AUTH_SETUP.md');
-        
+
         $authDocContent = file_get_contents(__DIR__ . '/../../docs/AUTHENTICATION.md');
         $this->assertStringContainsString('Email-Based User Authentication', $authDocContent);
         $this->assertStringContainsString('Security Features', $authDocContent);
-        
+
         $setupDocContent = file_get_contents(__DIR__ . '/../../docs/AUTH_SETUP.md');
         $this->assertStringContainsString('Authentication System Setup', $setupDocContent);
         $this->assertStringContainsString('Testing the Authentication System', $setupDocContent);

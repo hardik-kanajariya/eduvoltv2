@@ -54,8 +54,8 @@ class SecurePasswordResetNotification extends Notification implements ShouldQueu
     protected function buildMailMessage(string $url, object $notifiable): MailMessage
     {
         $expireMinutes = config('auth.passwords.users.expire', 60);
-        
-        return (new MailMessage)
+
+        return (new MailMessage())
             ->subject(Lang::get('Reset Password Notification'))
             ->line(Lang::get('You are receiving this email because we received a password reset request for your account.'))
             ->action(Lang::get('Reset Password'), $url)

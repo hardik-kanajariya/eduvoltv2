@@ -16,14 +16,14 @@ class TwoFactorController extends Controller
     public function show(): View
     {
         $user = auth()->user();
-        
+
         return view('auth.two-factor', [
             'user' => $user,
-            'qrCodeUrl' => $user->hasEnabledTwoFactorAuthentication() 
-                ? null 
+            'qrCodeUrl' => $user->hasEnabledTwoFactorAuthentication()
+                ? null
                 : $user->getTwoFactorQrCodeUrl(),
-            'recoveryCodes' => $user->hasEnabledTwoFactorAuthentication() 
-                ? $user->two_factor_recovery_codes 
+            'recoveryCodes' => $user->hasEnabledTwoFactorAuthentication()
+                ? $user->two_factor_recovery_codes
                 : [],
         ]);
     }
@@ -34,7 +34,7 @@ class TwoFactorController extends Controller
     public function store(Request $request): RedirectResponse|JsonResponse
     {
         $user = auth()->user();
-        
+
         if ($user->hasEnabledTwoFactorAuthentication()) {
             return $this->respondWithError('Two factor authentication is already enabled.');
         }
@@ -61,7 +61,7 @@ class TwoFactorController extends Controller
     public function destroy(Request $request): RedirectResponse|JsonResponse
     {
         $user = auth()->user();
-        
+
         $request->validate([
             'password' => ['required', 'current_password'],
         ]);
@@ -77,7 +77,7 @@ class TwoFactorController extends Controller
     public function recoveryCodes(): RedirectResponse|JsonResponse
     {
         $user = auth()->user();
-        
+
         if (!$user->hasEnabledTwoFactorAuthentication()) {
             return $this->respondWithError('Two factor authentication is not enabled.');
         }
@@ -115,7 +115,7 @@ class TwoFactorController extends Controller
         ]);
 
         $user = auth()->user();
-        
+
         if (!$user->hasEnabledTwoFactorAuthentication()) {
             return redirect()->route('login')->withErrors([
                 'email' => 'Two factor authentication is not properly configured.',
@@ -148,7 +148,7 @@ class TwoFactorController extends Controller
     public function qrCode(): JsonResponse
     {
         $user = auth()->user();
-        
+
         if ($user->hasEnabledTwoFactorAuthentication()) {
             return response()->json(['error' => 'Two factor authentication is already enabled.'], 400);
         }

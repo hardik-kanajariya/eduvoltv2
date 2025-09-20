@@ -23,9 +23,9 @@ abstract class PolicyTestCase extends TestCase
     protected function createMockUser(?int $tenantId = null): Authenticatable
     {
         // Create a simple mock user object
-        $user = new class extends Authenticatable {
+        $user = new class () extends Authenticatable {
             protected $fillable = ['id', 'tenant_id', 'name', 'email'];
-            
+
             public function __construct(array $attributes = [])
             {
                 $this->attributes = $attributes;
@@ -47,10 +47,10 @@ abstract class PolicyTestCase extends TestCase
      */
     protected function createMockModel(?int $tenantId = null, array $attributes = []): Model
     {
-        $model = new class extends Model {
+        $model = new class () extends Model {
             protected $fillable = ['id', 'tenant_id', 'name'];
             public $timestamps = false;
-            
+
             public function __construct(array $attributes = [])
             {
                 parent::__construct($attributes);
@@ -74,10 +74,10 @@ abstract class PolicyTestCase extends TestCase
      */
     protected function createMockModelWithoutTenant(array $attributes = []): Model
     {
-        $model = new class extends Model {
+        $model = new class () extends Model {
             protected $fillable = ['id', 'name'];
             public $timestamps = false;
-            
+
             public function __construct(array $attributes = [])
             {
                 parent::__construct($attributes);
@@ -115,7 +115,7 @@ abstract class PolicyTestCase extends TestCase
 
     /**
      * Test common tenant scenarios for a policy method.
-     * 
+     *
      * @param callable $policyMethodFactory Function that takes (user, model) and returns policy result
      * @param bool $expectPassForSameTenant Should the policy pass when user and model have same tenant
      * @param bool $expectFailForDifferentTenant Should the policy fail when user and model have different tenants
@@ -128,9 +128,9 @@ abstract class PolicyTestCase extends TestCase
         // Test same tenant scenario
         $user = $this->createMockUser(1);
         $model = $this->createMockModel(1);
-        
+
         $result = $policyMethodFactory($user, $model);
-        
+
         if ($expectPassForSameTenant) {
             $this->assertTrue($result, 'Policy should pass when user and model belong to same tenant');
         } else {
@@ -140,9 +140,9 @@ abstract class PolicyTestCase extends TestCase
         // Test different tenant scenario
         $user = $this->createMockUser(1);
         $model = $this->createMockModel(2);
-        
+
         $result = $policyMethodFactory($user, $model);
-        
+
         if ($expectFailForDifferentTenant) {
             $this->assertFalse($result, 'Policy should fail when user and model belong to different tenants');
         } else {
@@ -171,7 +171,7 @@ abstract class PolicyTestCase extends TestCase
         // Test user with tenant
         $user = $this->createMockUser(1);
         $result = $policyMethodFactory($user);
-        
+
         if ($expectPassForUserWithTenant) {
             $this->assertTrue($result, 'Policy should pass when user has tenant access');
         } else {
@@ -224,7 +224,7 @@ abstract class PolicyTestCase extends TestCase
             foreach ($models as $modelKey => $model) {
                 $result = $policyMethodFactory($user, $model);
                 $expectedKey = "{$userKey}_with_{$modelKey}";
-                
+
                 if (isset($expectedResults[$expectedKey])) {
                     $expected = $expectedResults[$expectedKey];
                     $this->assertEquals(

@@ -17,9 +17,9 @@ class BaseTenantPolicyTest extends PolicyTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a concrete implementation for testing
-        $this->policy = new class extends BaseTenantPolicy {
+        $this->policy = new class () extends BaseTenantPolicy {
             // Concrete implementation for testing
         };
     }
@@ -27,49 +27,49 @@ class BaseTenantPolicyTest extends PolicyTestCase
     public function test_belongs_to_tenant_returns_true_for_matching_tenant(): void
     {
         $model = $this->createMockModel(1);
-        
+
         $this->assertTrue($this->policy->belongsToTenant($model, 1));
     }
 
     public function test_belongs_to_tenant_returns_false_for_different_tenant(): void
     {
         $model = $this->createMockModel(1);
-        
+
         $this->assertFalse($this->policy->belongsToTenant($model, 2));
     }
 
     public function test_belongs_to_tenant_returns_false_for_non_model(): void
     {
         $notAModel = new \stdClass();
-        
+
         $this->assertFalse($this->policy->belongsToTenant($notAModel, 1));
     }
 
     public function test_belongs_to_tenant_returns_false_for_model_without_tenant_id(): void
     {
         $model = $this->createMockModelWithoutTenant();
-        
+
         $this->assertFalse($this->policy->belongsToTenant($model, 1));
     }
 
     public function test_get_tenant_id_from_model_returns_correct_id(): void
     {
         $model = $this->createMockModel(5);
-        
+
         $this->assertEquals(5, $this->policy->getTenantIdFromModel($model));
     }
 
     public function test_get_tenant_id_from_model_returns_null_for_non_model(): void
     {
         $notAModel = new \stdClass();
-        
+
         $this->assertNull($this->policy->getTenantIdFromModel($notAModel));
     }
 
     public function test_get_tenant_id_from_model_returns_null_for_model_without_tenant_id(): void
     {
         $model = $this->createMockModelWithoutTenant();
-        
+
         $this->assertNull($this->policy->getTenantIdFromModel($model));
     }
 
@@ -136,7 +136,7 @@ class BaseTenantPolicyTest extends PolicyTestCase
     public function test_create_in_tenant_with_specific_tenant_id(): void
     {
         $user = $this->createMockUser(1);
-        
+
         // Test creating in tenant 2 (should pass with placeholder implementation)
         $this->assertTrue($this->policy->createInTenant($user, [], 2));
     }
@@ -150,7 +150,7 @@ class BaseTenantPolicyTest extends PolicyTestCase
     {
         $user = $this->createMockUser(1);
         $model = $this->createMockModel(1);
-        
+
         $this->assertTrue($this->policy->updateInTenant($user, $model, ['name' => 'New Name']));
     }
 
@@ -158,7 +158,7 @@ class BaseTenantPolicyTest extends PolicyTestCase
     {
         $user = $this->createMockUser(1);
         $model = $this->createMockModel(1);
-        
+
         // Test changing tenant_id (should pass with placeholder implementation)
         $this->assertTrue($this->policy->updateInTenant($user, $model, ['tenant_id' => 2]));
     }
@@ -167,7 +167,7 @@ class BaseTenantPolicyTest extends PolicyTestCase
     {
         $user = $this->createMockUser(1);
         $model = $this->createMockModel(2);
-        
+
         $this->assertFalse($this->policy->updateInTenant($user, $model, ['name' => 'New Name']));
     }
 
@@ -175,7 +175,7 @@ class BaseTenantPolicyTest extends PolicyTestCase
     {
         $user = $this->createMockUser(1);
         $model = $this->createMockModel(1);
-        
+
         // Should be able to transfer to tenant 2
         $this->assertTrue($this->policy->transfer($user, $model, 2));
     }
@@ -184,7 +184,7 @@ class BaseTenantPolicyTest extends PolicyTestCase
     {
         $user = $this->createMockUser(1);
         $model = $this->createMockModel(2);
-        
+
         // Cannot transfer model from tenant 2 when user only has access to tenant 1
         $this->assertFalse($this->policy->transfer($user, $model, 3));
     }
@@ -192,7 +192,7 @@ class BaseTenantPolicyTest extends PolicyTestCase
     public function test_transfer_fails_with_null_user(): void
     {
         $model = $this->createMockModel(1);
-        
+
         $this->assertFalse($this->policy->transfer(null, $model, 2));
     }
 
