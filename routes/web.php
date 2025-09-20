@@ -175,11 +175,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/templates', [ReportController::class, 'templates'])->name('templates');
         Route::get('/statistics', [ReportController::class, 'statistics'])->name('statistics');
         Route::post('/bulk-export', [ReportController::class, 'bulkExport'])->name('bulk-export');
-        
+
         // Specialized report endpoints
         Route::get('/attendance', [ReportController::class, 'attendanceReports'])->name('attendance');
         Route::get('/academic', [ReportController::class, 'academicReports'])->name('academic');
-        
+
         // Individual report routes
         Route::get('/{report}', [ReportController::class, 'show'])->name('show');
         Route::put('/{report}', [ReportController::class, 'update'])->name('update');
@@ -188,7 +188,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/{report}/export', [ReportController::class, 'export'])->name('export');
         Route::get('/{report}/download', [ReportController::class, 'download'])->name('download');
         Route::get('/{report}/chart', [ReportController::class, 'chart'])->name('chart');
-        
+
         // Dashboard charts endpoint
         Route::get('/dashboard/charts', [ReportController::class, 'dashboardCharts'])->name('dashboard.charts');
     });

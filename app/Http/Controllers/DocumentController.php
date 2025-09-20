@@ -53,8 +53,8 @@ class DocumentController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('original_filename', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('original_filename', 'like', "%{$search}%");
             });
         }
 
@@ -106,7 +106,6 @@ class DocumentController extends Controller
                 'message' => 'Document uploaded successfully.',
                 'data' => $document->load(['uploader:id,name']),
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -165,7 +164,6 @@ class DocumentController extends Controller
                 'message' => 'Document updated successfully.',
                 'data' => $updatedDocument,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -189,7 +187,6 @@ class DocumentController extends Controller
                 'success' => true,
                 'message' => 'Document deleted successfully.',
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -238,7 +235,6 @@ class DocumentController extends Controller
                 'message' => 'New document version created successfully.',
                 'data' => $newVersion->load(['uploader:id,name']),
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -266,7 +262,6 @@ class DocumentController extends Controller
                 'message' => 'Document verified successfully.',
                 'data' => $verifiedDocument,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -291,7 +286,6 @@ class DocumentController extends Controller
                 'message' => 'Document archived successfully.',
                 'data' => $archivedDocument,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -316,7 +310,6 @@ class DocumentController extends Controller
                 'message' => 'Document restored successfully.',
                 'data' => $restoredDocument,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -343,10 +336,10 @@ class DocumentController extends Controller
     public function uploadProgress(Request $request): JsonResponse
     {
         $uploadId = $request->get('upload_id');
-        
+
         // This would integrate with a file upload progress tracking system
         // For now, return a placeholder response
-        
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -389,7 +382,6 @@ class DocumentController extends Controller
                 'message' => 'Bulk upload completed.',
                 'data' => $results,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -424,7 +416,6 @@ class DocumentController extends Controller
                 'message' => 'Bulk categorization completed.',
                 'data' => $results,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -457,7 +448,6 @@ class DocumentController extends Controller
                 'message' => 'Bulk deletion completed.',
                 'data' => $results,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -490,7 +480,6 @@ class DocumentController extends Controller
                 'message' => 'Bulk archiving completed.',
                 'data' => $results,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -527,7 +516,6 @@ class DocumentController extends Controller
                     'expires_at' => now()->addHours(2)->toISOString(),
                 ],
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -552,7 +540,6 @@ class DocumentController extends Controller
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
                 'Content-Length' => filesize($filePath),
             ]);
-
         } catch (\Exception $e) {
             abort(404, $e->getMessage());
         }
@@ -575,7 +562,6 @@ class DocumentController extends Controller
                 'success' => true,
                 'data' => $stats,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

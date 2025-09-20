@@ -22,7 +22,7 @@ class ProcessCsvImportJob implements ShouldQueue
 
     public $timeout = 300; // 5 minutes
     public $tries = 3;
-    
+
     protected string $filePath;
     protected array $options;
     protected string $jobId;
@@ -58,7 +58,7 @@ class ProcessCsvImportJob implements ShouldQueue
 
             $fileContent = Storage::get($this->filePath);
             $lines = explode("\n", $fileContent);
-            
+
             if (empty($lines)) {
                 throw new \Exception('CSV file is empty');
             }
@@ -66,7 +66,7 @@ class ProcessCsvImportJob implements ShouldQueue
             // Parse header row
             $headers = $this->parseCsvLine($lines[0]);
             $requiredFields = ['first_name', 'last_name', 'email'];
-            
+
             // Validate headers
             $missingFields = array_diff($requiredFields, $headers);
             if (!empty($missingFields)) {
@@ -74,7 +74,7 @@ class ProcessCsvImportJob implements ShouldQueue
             }
 
             $totalRows = count($lines) - 1; // Exclude header
-            
+
             // Process each data row
             for ($i = 1; $i < count($lines); $i++) {
                 if (empty(trim($lines[$i]))) {
@@ -82,14 +82,14 @@ class ProcessCsvImportJob implements ShouldQueue
                 }
 
                 $results['processed']++;
-                
+
                 try {
                     $data = $this->parseCsvLine($lines[$i]);
                     $studentData = $this->mapCsvToStudentData($headers, $data);
-                    
+
                     // Validate student data
                     $validation = $this->validateStudentData($studentData, $i + 1);
-                    
+
                     if (!$validation['valid']) {
                         $results['errors']++;
                         $results['error_details'][] = [
@@ -123,7 +123,6 @@ class ProcessCsvImportJob implements ShouldQueue
                     // Create new student
                     $this->createNewStudent($studentData);
                     $results['success']++;
-
                 } catch (\Exception $e) {
                     $results['errors']++;
                     $results['error_details'][] = [
@@ -131,7 +130,7 @@ class ProcessCsvImportJob implements ShouldQueue
                         'errors' => [$e->getMessage()],
                         'data' => $data ?? []
                     ];
-                    
+
                     Log::error("Error processing CSV row", [
                         'job_id' => $this->jobId,
                         'row' => $i + 1,
@@ -141,27 +140,26 @@ class ProcessCsvImportJob implements ShouldQueue
             }
 
             $results['completed_at'] = now();
-            
+
             // Store results (in a real implementation, you'd store this in cache or database)
             $this->storeJobResults($results);
-            
+
             // Clean up temporary file
             Storage::delete($this->filePath);
-            
-            Log::info("CSV import job completed", $results);
 
+            Log::info("CSV import job completed", $results);
         } catch (\Exception $e) {
             $results['status'] = 'failed';
             $results['error'] = $e->getMessage();
             $results['completed_at'] = now();
-            
+
             $this->storeJobResults($results);
-            
+
             Log::error("CSV import job failed", [
                 'job_id' => $this->jobId,
                 'error' => $e->getMessage()
             ]);
-            
+
             throw $e;
         }
     }
@@ -180,10 +178,10 @@ class ProcessCsvImportJob implements ShouldQueue
     private function mapCsvToStudentData(array $headers, array $data): array
     {
         $mapped = [];
-        
+
         foreach ($headers as $index => $header) {
             $value = $data[$index] ?? '';
-            
+
             // Map CSV headers to student fields
             switch (strtolower(trim($header))) {
                 case 'first_name':
@@ -253,7 +251,7 @@ class ProcessCsvImportJob implements ShouldQueue
         $mapped['status'] = $mapped['status'] ?? 'active';
         $mapped['enrollment_date'] = $mapped['enrollment_date'] ?? now();
         $mapped['academic_year'] = $mapped['academic_year'] ?? $this->getCurrentAcademicYear();
-        
+
         // Generate admission number if not provided
         if (empty($mapped['admission_number'])) {
             $mapped['admission_number'] = $this->generateAdmissionNumber();
@@ -283,7 +281,7 @@ class ProcessCsvImportJob implements ShouldQueue
         ];
 
         $validator = Validator::make($data, $rules);
-        
+
         return [
             'valid' => !$validator->fails(),
             'errors' => $validator->errors()->all(),
@@ -298,8 +296,8 @@ class ProcessCsvImportJob implements ShouldQueue
         return Student::where('admission_number', $data['admission_number'])
             ->orWhere(function ($query) use ($data) {
                 $query->where('email', $data['email'])
-                      ->where('first_name', $data['first_name'])
-                      ->where('last_name', $data['last_name']);
+                    ->where('first_name', $data['first_name'])
+                    ->where('last_name', $data['last_name']);
             })
             ->first();
     }
@@ -323,7 +321,7 @@ class ProcessCsvImportJob implements ShouldQueue
                 $student->$key = $value;
             }
         }
-        
+
         $student->save();
         return $student;
     }
@@ -388,7 +386,7 @@ class ProcessCsvImportJob implements ShouldQueue
     {
         // In a real implementation, store in cache or database
         // Cache::put("csv_import_job_{$this->jobId}", $results, now()->addHours(24));
-        
+
         Log::info("Storing job results", ['job_id' => $this->jobId, 'results' => $results]);
     }
 }

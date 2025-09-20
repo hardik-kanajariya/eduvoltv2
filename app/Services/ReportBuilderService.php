@@ -31,7 +31,7 @@ class ReportBuilderService
         $this->report = $report;
         $this->parameters = $report->parameters ?? [];
         $this->selectedFields = $report->selected_fields;
-        
+
         return $this;
     }
 
@@ -248,7 +248,7 @@ class ReportBuilderService
         if (isset($this->parameters['date_from'])) {
             $this->query->where('created_at', '>=', $this->parameters['date_from']);
         }
-        
+
         if (isset($this->parameters['date_to'])) {
             $this->query->where('created_at', '<=', $this->parameters['date_to']);
         }
@@ -561,7 +561,7 @@ class ReportBuilderService
     protected function calculateAcademicStatistics(array $data): array
     {
         $grades = collect($data)->pluck('current_grade')->filter()->values();
-        
+
         if ($grades->isEmpty()) {
             return ['total_records' => count($data)];
         }
@@ -634,7 +634,7 @@ class ReportBuilderService
                 $grade >= 60 => 'D (60-69)',
                 default => 'F (0-59)',
             };
-        })->map(function($group) {
+        })->map(function ($group) {
             return $group->count();
         });
 

@@ -100,7 +100,7 @@ class Document extends Model
         if ($category instanceof DocumentCategory) {
             return $query->where('category', $category->value);
         }
-        
+
         return $query->where('category', $category);
     }
 
@@ -245,7 +245,7 @@ class Document extends Model
         // Check custom access permissions
         if ($this->access_permissions) {
             return in_array($user->id, $this->access_permissions['user_ids'] ?? []) ||
-                   !empty(array_intersect($user->getRoleNames()->toArray(), $this->access_permissions['roles'] ?? []));
+                !empty(array_intersect($user->getRoleNames()->toArray(), $this->access_permissions['roles'] ?? []));
         }
 
         return false;

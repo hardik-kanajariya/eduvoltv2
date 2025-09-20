@@ -84,7 +84,7 @@ class StudentSearchServiceTest extends TestCase
         $this->assertArrayHasKey('grades', $options);
         $this->assertArrayHasKey('sections', $options);
         $this->assertArrayHasKey('genders', $options);
-        
+
         $this->assertContains('active', $options['statuses']);
         $this->assertContains('inactive', $options['statuses']);
         $this->assertContains('9', $options['grades']);

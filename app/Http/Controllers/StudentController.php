@@ -36,10 +36,10 @@ class StudentController extends Controller
 
         // Use the search service for advanced filtering
         $students = $this->searchService->search($request);
-        
+
         // Get filter options for dropdowns
         $filterOptions = $this->searchService->getFilterOptions();
-        
+
         // Get search statistics
         $searchStats = $this->searchService->getSearchStats($request);
 
@@ -254,9 +254,9 @@ class StudentController extends Controller
     public function export(Request $request)
     {
         Gate::authorize('viewAny', Student::class);
-        
+
         $exportData = $this->searchService->exportResults($request);
-        
+
         return response($exportData['content'])
             ->header('Content-Type', $exportData['headers']['Content-Type'])
             ->header('Content-Disposition', 'attachment; filename="' . $exportData['filename'] . '"');
@@ -268,7 +268,7 @@ class StudentController extends Controller
     public function searchOptions(Request $request)
     {
         Gate::authorize('viewAny', Student::class);
-        
+
         return response()->json([
             'filters' => $this->searchService->getFilterOptions(),
             'stats' => $this->searchService->getSearchStats($request)
@@ -281,9 +281,9 @@ class StudentController extends Controller
     public function search(Request $request)
     {
         Gate::authorize('viewAny', Student::class);
-        
+
         $students = $this->searchService->search($request);
-        
+
         if ($request->ajax()) {
             return response()->json([
                 'students' => $students->items(),
@@ -294,7 +294,7 @@ class StudentController extends Controller
                 ]
             ]);
         }
-        
+
         return redirect()->route('students.index')->with('search_results', $students);
     }
 
@@ -327,7 +327,6 @@ class StudentController extends Controller
                 return redirect()->back()
                     ->with('error', 'Import failed: ' . implode(', ', $result['details']));
             }
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Import failed: ' . $e->getMessage());
@@ -368,7 +367,6 @@ class StudentController extends Controller
             return redirect()->route('students.index')
                 ->with('success', "Successfully updated {$result['success']} students. {$result['errors']} errors occurred.")
                 ->with('bulk_result', $result);
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Bulk update failed: ' . $e->getMessage());
@@ -410,7 +408,6 @@ class StudentController extends Controller
             return redirect()->route('students.index')
                 ->with('success', "Successfully updated {$result['success']} students. {$result['errors']} errors occurred.")
                 ->with('bulk_result', $result);
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Bulk assignment failed: ' . $e->getMessage());
@@ -454,7 +451,6 @@ class StudentController extends Controller
             return redirect()->route('students.index')
                 ->with('success', "Mass communication queued for {$result['queued']} recipients.")
                 ->with('communication_result', $result);
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Mass communication failed: ' . $e->getMessage());
@@ -486,7 +482,6 @@ class StudentController extends Controller
             return response($result['content'])
                 ->header('Content-Type', 'application/octet-stream')
                 ->header('Content-Disposition', 'attachment; filename="' . $result['filename'] . '"');
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Export failed: ' . $e->getMessage());

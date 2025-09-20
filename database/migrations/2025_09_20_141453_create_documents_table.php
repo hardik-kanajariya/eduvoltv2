@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
             $table->foreignId('uploaded_by')->constrained('users')->onDelete('restrict');
-            
+
             // Document metadata
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('category', [
                 'academic_records',
-                'medical_documents', 
+                'medical_documents',
                 'id_documents',
                 'certificates',
                 'reports',
@@ -29,7 +29,7 @@ return new class extends Migration
                 'photos',
                 'other'
             ])->index();
-            
+
             // File information
             $table->string('original_filename');
             $table->string('stored_filename');
@@ -37,27 +37,27 @@ return new class extends Migration
             $table->string('mime_type');
             $table->unsignedBigInteger('file_size'); // in bytes
             $table->string('file_hash', 64); // SHA-256 hash for duplicate detection
-            
+
             // Versioning
             $table->unsignedInteger('version')->default(1);
             $table->foreignId('parent_document_id')->nullable()->constrained('documents')->onDelete('cascade');
-            
+
             // Security and access
             $table->boolean('is_sensitive')->default(false);
             $table->boolean('is_verified')->default(false);
             $table->foreignId('verified_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamp('verified_at')->nullable();
-            
+
             // Status and lifecycle
             $table->enum('status', ['active', 'archived', 'deleted'])->default('active')->index();
             $table->timestamp('expires_at')->nullable();
             $table->json('access_permissions')->nullable(); // JSON field for granular permissions
-            
+
             // Audit trail
             $table->json('metadata')->nullable(); // Additional document metadata
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Indexes for performance
             $table->index(['student_id', 'category']);
             $table->index(['student_id', 'status']);

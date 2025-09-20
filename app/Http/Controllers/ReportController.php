@@ -39,7 +39,7 @@ class ReportController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
+
         $query = Report::with(['creator'])
             ->forUser($user);
 
@@ -119,7 +119,7 @@ class ReportController extends Controller
         $availableRoles = $reportCategory->getAvailableRoles();
         $userRoles = $user->roles->pluck('name')->toArray();
         $hasPermission = !empty(array_intersect($userRoles, $availableRoles));
-        
+
         if (!$hasPermission) {
             return response()->json([
                 'success' => false,
@@ -231,8 +231,13 @@ class ReportController extends Controller
         }
 
         $report->update($request->only([
-            'name', 'description', 'parameters', 'fields', 'output_format',
-            'is_scheduled', 'schedule_frequency'
+            'name',
+            'description',
+            'parameters',
+            'fields',
+            'output_format',
+            'is_scheduled',
+            'schedule_frequency'
         ]));
 
         // Clear cache when report is updated
@@ -332,8 +337,8 @@ class ReportController extends Controller
 
         try {
             $exportResult = $this->exportService->exportReport(
-                $report, 
-                $request->get('format'), 
+                $report,
+                $request->get('format'),
                 $user
             );
 
@@ -366,7 +371,7 @@ class ReportController extends Controller
 
         // Find the file in exports directory
         $filePath = $this->findExportFile($report, $format);
-        
+
         if (!$filePath || !Storage::disk('private')->exists($filePath)) {
             abort(404, 'Export file not found');
         }
@@ -635,11 +640,11 @@ class ReportController extends Controller
 
             // Extract chart data based on report type
             $chartData = $this->extractChartData($reportData, $report->type);
-            
+
             // Generate chart configuration
             $chartType = $request->get('chart_type');
             $chartConfig = $request->get('chart_config', []);
-            
+
             if ($chartType) {
                 // Use specific chart type
                 $chart = $this->generateSpecificChart($chartData, $chartType, $chartConfig);
@@ -692,7 +697,7 @@ class ReportController extends Controller
                     'start_date' => now()->subWeeks(4)->format('Y-m-d'),
                     'end_date' => now()->format('Y-m-d'),
                 ]);
-                
+
                 $charts['attendance_overview'] = $this->chartService->generateAttendanceTrendChart(
                     $attendanceData['chart_data'] ?? [],
                     ['title' => 'Weekly Attendance Trends']
@@ -709,7 +714,7 @@ class ReportController extends Controller
                     'D' => 20,
                     'F' => 10,
                 ];
-                
+
                 $charts['grade_distribution'] = $this->chartService->generateGradeDistributionChart(
                     $gradeData,
                     ['title' => 'Current Grade Distribution']
@@ -726,7 +731,7 @@ class ReportController extends Controller
                     'May' => 89,
                     'June' => 93,
                 ];
-                
+
                 $charts['monthly_performance'] = $this->chartService->generateLineChart(
                     $monthlyStats,
                     [
@@ -785,12 +790,12 @@ class ReportController extends Controller
     {
         $timestamp = now()->format('Y-m-d_H-i-s');
         $reportName = Str::slug($report->name);
-        
+
         $extension = match ($format) {
             'excel' => 'xlsx',
             default => $format,
         };
-        
+
         return "{$reportName}_{$timestamp}.{$extension}";
     }
 
@@ -798,23 +803,23 @@ class ReportController extends Controller
     {
         $directory = "exports/{$format}";
         $files = Storage::disk('private')->files($directory);
-        
+
         // Find the most recent export file for this report
         $reportSlug = Str::slug($report->name);
-        
+
         $matchingFiles = array_filter($files, function ($file) use ($reportSlug) {
             return str_contains(basename($file), $reportSlug);
         });
-        
+
         if (empty($matchingFiles)) {
             return null;
         }
-        
+
         // Return the most recent file
         usort($matchingFiles, function ($a, $b) {
             return Storage::disk('private')->lastModified($b) - Storage::disk('private')->lastModified($a);
         });
-        
+
         return $matchingFiles[0];
     }
 
@@ -864,16 +869,16 @@ class ReportController extends Controller
         switch ($reportType->value) {
             case 'attendance':
                 return $reportData['chart_data'] ?? $reportData['summary'] ?? [];
-                
+
             case 'academic':
                 return $reportData['performance_data'] ?? $reportData['grades'] ?? [];
-                
+
             case 'financial':
                 return $reportData['financial_summary'] ?? [];
-                
+
             case 'student_profile':
                 return $reportData['demographics'] ?? [];
-                
+
             default:
                 return $reportData['chart_data'] ?? [];
         }

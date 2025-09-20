@@ -22,7 +22,7 @@ class StudentBulkOperationsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create roles and users
         $adminRole = Role::factory()->create(['name' => 'Admin']);
         $teacherRole = Role::factory()->create(['name' => 'Teacher']);
@@ -114,7 +114,7 @@ class StudentBulkOperationsTest extends TestCase
 
         $response->assertRedirect(route('students.index'));
         $response->assertSessionHas('success');
-        
+
         foreach ($students as $student) {
             $this->assertDatabaseHas('students', [
                 'id' => $student->id,
@@ -163,7 +163,7 @@ class StudentBulkOperationsTest extends TestCase
 
         $response->assertRedirect(route('students.index'));
         $response->assertSessionHas('success');
-        
+
         foreach ($students as $student) {
             $this->assertDatabaseHas('students', [
                 'id' => $student->id,

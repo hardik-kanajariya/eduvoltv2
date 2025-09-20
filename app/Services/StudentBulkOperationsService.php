@@ -41,11 +41,11 @@ class StudentBulkOperationsService
 
             // Store file temporarily
             $path = $file->store('temp/imports');
-            
+
             // Queue job for processing
             $jobId = $this->queueCsvImportJob($path, $options);
             $results['job_id'] = $jobId;
-            
+
             return $results;
         } catch (\Exception $e) {
             Log::error('CSV Import Error: ' . $e->getMessage());
@@ -73,7 +73,7 @@ class StudentBulkOperationsService
             foreach ($studentIds as $studentId) {
                 try {
                     $student = Student::findOrFail($studentId);
-                    
+
                     // Validate status change
                     if (!$this->canChangeStatus($student, $status)) {
                         $results['errors']++;
@@ -87,7 +87,7 @@ class StudentBulkOperationsService
 
                     $oldStatus = $student->status;
                     $student->status = $status;
-                    
+
                     // Add additional fields based on status
                     if ($status === 'graduated') {
                         $student->graduation_date = $options['graduation_date'] ?? now();
@@ -95,7 +95,7 @@ class StudentBulkOperationsService
                         $student->transfer_date = $options['transfer_date'] ?? now();
                         $student->transfer_school = $options['transfer_school'] ?? null;
                     }
-                    
+
                     $student->save();
 
                     $results['success']++;
@@ -113,7 +113,6 @@ class StudentBulkOperationsService
                         'new_status' => $status,
                         'updated_by' => Auth::id(),
                     ]);
-
                 } catch (\Exception $e) {
                     $results['errors']++;
                     $results['failed_students'][] = [
@@ -125,7 +124,6 @@ class StudentBulkOperationsService
 
             DB::commit();
             return $results;
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Bulk Status Update Error: ' . $e->getMessage());
@@ -151,22 +149,22 @@ class StudentBulkOperationsService
             foreach ($studentIds as $studentId) {
                 try {
                     $student = Student::findOrFail($studentId);
-                    
+
                     $oldGrade = $student->grade;
                     $oldSection = $student->section;
-                    
+
                     if (isset($assignment['grade'])) {
                         $student->grade = $assignment['grade'];
                     }
-                    
+
                     if (isset($assignment['section'])) {
                         $student->section = $assignment['section'];
                     }
-                    
+
                     if (isset($assignment['academic_year'])) {
                         $student->academic_year = $assignment['academic_year'];
                     }
-                    
+
                     $student->save();
 
                     $results['success']++;
@@ -178,7 +176,6 @@ class StudentBulkOperationsService
                         'old_section' => $oldSection,
                         'new_section' => $student->section,
                     ];
-
                 } catch (\Exception $e) {
                     $results['errors']++;
                     $results['failed_students'][] = [
@@ -190,7 +187,6 @@ class StudentBulkOperationsService
 
             DB::commit();
             return $results;
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Bulk Class Assignment Error: ' . $e->getMessage());
@@ -211,7 +207,7 @@ class StudentBulkOperationsService
 
         try {
             $students = Student::whereIn('id', $studentIds)->get();
-            
+
             foreach ($students as $student) {
                 // Queue email to student
                 if (!empty($student->email) && ($options['send_to_students'] ?? true)) {
@@ -219,7 +215,7 @@ class StudentBulkOperationsService
                     $results['job_ids'][] = $jobId;
                     $results['queued']++;
                 }
-                
+
                 // Queue email to parent
                 if (!empty($student->parent_email) && ($options['send_to_parents'] ?? true)) {
                     $jobId = $this->queueCommunicationJob($student->parent_email, $message, 'parent', $student);
@@ -229,7 +225,6 @@ class StudentBulkOperationsService
             }
 
             return $results;
-
         } catch (\Exception $e) {
             Log::error('Mass Communication Error: ' . $e->getMessage());
             throw $e;
@@ -243,13 +238,23 @@ class StudentBulkOperationsService
     {
         try {
             $students = Student::whereIn('id', $studentIds)->get();
-            
+
             // Default fields if none specified
             if (empty($fields)) {
                 $fields = [
-                    'admission_number', 'first_name', 'last_name', 'email', 
-                    'phone', 'date_of_birth', 'gender', 'grade', 'section', 
-                    'status', 'parent_name', 'parent_email', 'parent_phone'
+                    'admission_number',
+                    'first_name',
+                    'last_name',
+                    'email',
+                    'phone',
+                    'date_of_birth',
+                    'gender',
+                    'grade',
+                    'section',
+                    'status',
+                    'parent_name',
+                    'parent_email',
+                    'parent_phone'
                 ];
             }
 
@@ -263,7 +268,6 @@ class StudentBulkOperationsService
                 default:
                     throw new \InvalidArgumentException("Unsupported export format: {$format}");
             }
-
         } catch (\Exception $e) {
             Log::error('Export Error: ' . $e->getMessage());
             throw $e;
@@ -295,17 +299,17 @@ class StudentBulkOperationsService
     private function validateCsvFile(UploadedFile $file): array
     {
         $errors = [];
-        
+
         // Check file extension
         if (!in_array($file->getClientOriginalExtension(), ['csv', 'txt'])) {
             $errors[] = 'File must be a CSV file';
         }
-        
+
         // Check file size (max 10MB)
         if ($file->getSize() > 10 * 1024 * 1024) {
             $errors[] = 'File size must be less than 10MB';
         }
-        
+
         // Check MIME type
         if (!in_array($file->getMimeType(), ['text/csv', 'text/plain', 'application/csv'])) {
             $errors[] = 'Invalid file type';
@@ -323,7 +327,7 @@ class StudentBulkOperationsService
     private function canChangeStatus(Student $student, string $newStatus): bool
     {
         $currentStatus = $student->status;
-        
+
         // Define allowed status transitions
         $allowedTransitions = [
             'active' => ['inactive', 'graduated', 'transferred', 'suspended'],
@@ -342,30 +346,30 @@ class StudentBulkOperationsService
     private function exportToCsv(Collection $students, array $fields): array
     {
         $csvContent = '';
-        
+
         // Add headers
         $csvContent .= implode(',', $fields) . "\n";
-        
+
         // Add data rows
         foreach ($students as $student) {
             $row = [];
             foreach ($fields as $field) {
                 $value = $student->$field ?? '';
-                
+
                 // Handle special cases
                 if ($field === 'medical_conditions' && is_array($value)) {
                     $value = implode(';', $value);
                 } elseif ($field === 'allergies' && is_array($value)) {
                     $value = implode(';', $value);
                 }
-                
+
                 $row[] = '"' . str_replace('"', '""', $value) . '"';
             }
             $csvContent .= implode(',', $row) . "\n";
         }
 
         $filename = 'students_export_' . date('Y-m-d_H-i-s') . '.csv';
-        
+
         return [
             'filename' => $filename,
             'content' => $csvContent,
@@ -384,7 +388,7 @@ class StudentBulkOperationsService
         $data = $this->exportToCsv($students, $fields);
         $data['filename'] = str_replace('.csv', '.xlsx', $data['filename']);
         $data['format'] = 'excel';
-        
+
         return $data;
     }
 
@@ -396,7 +400,7 @@ class StudentBulkOperationsService
         // For now, return a basic structure
         // In a real implementation, you'd use a library like TCPDF or DomPDF
         $filename = 'students_export_' . date('Y-m-d_H-i-s') . '.pdf';
-        
+
         return [
             'filename' => $filename,
             'content' => '', // Would contain PDF binary data
@@ -411,10 +415,10 @@ class StudentBulkOperationsService
     private function queueCsvImportJob(string $filePath, array $options): string
     {
         $jobId = Str::uuid()->toString();
-        
+
         // Dispatch the actual job
         ProcessCsvImportJob::dispatch($filePath, $options, $jobId);
-        
+
         return $jobId;
     }
 
@@ -424,10 +428,10 @@ class StudentBulkOperationsService
     private function queueCommunicationJob(string $email, array $message, string $type, ?Student $student = null): string
     {
         $jobId = Str::uuid()->toString();
-        
+
         // Dispatch the actual job
         SendMassEmailJob::dispatch($email, $message, $type, $student, $jobId);
-        
+
         return $jobId;
     }
 }

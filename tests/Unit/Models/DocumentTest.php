@@ -48,7 +48,7 @@ class DocumentTest extends TestCase
     {
         $student = Student::factory()->create();
         $user = User::factory()->create();
-        
+
         $document = Document::create([
             'student_id' => $student->id,
             'uploaded_by' => $user->id,
@@ -71,7 +71,7 @@ class DocumentTest extends TestCase
         $student = Student::factory()->create();
         $user = User::factory()->create();
         $verifier = User::factory()->create();
-        
+
         $document = Document::create([
             'student_id' => $student->id,
             'uploaded_by' => $user->id,

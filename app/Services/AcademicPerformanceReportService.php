@@ -17,16 +17,16 @@ class AcademicPerformanceReportService
 
         // Get student basic info
         $student = $this->getStudentInfo($studentId);
-        
+
         // Get student grades across all subjects
         $grades = $this->getStudentGrades($studentId, $academicYear, $term);
-        
+
         // Calculate performance metrics
         $performanceMetrics = $this->calculateStudentPerformanceMetrics($grades);
-        
+
         // Get class rankings
         $rankings = $this->getStudentRankings($studentId, $academicYear, $term);
-        
+
         // Get attendance correlation
         $attendanceCorrelation = $this->getAttendancePerformanceCorrelation($studentId, $academicYear);
 
@@ -51,20 +51,20 @@ class AcademicPerformanceReportService
 
         // Get class students
         $students = $this->getClassStudents($className, $section);
-        
+
         // Get all grades for the class
         $classGrades = $this->getClassGrades($className, $section, $academicYear, $term);
-        
+
         // Calculate class statistics
         $classStatistics = $this->calculateClassStatistics($classGrades);
-        
+
         // Get subject-wise performance
         $subjectPerformance = $this->getSubjectWisePerformance($classGrades);
-        
+
         // Get top and bottom performers
         $topPerformers = $this->getTopPerformers($classGrades, 5);
         $bottomPerformers = $this->getBottomPerformers($classGrades, 5);
-        
+
         // Calculate improvement trends
         $improvementTrends = $this->calculateClassImprovementTrends($className, $section, $academicYear);
 
@@ -92,16 +92,16 @@ class AcademicPerformanceReportService
 
         // Get subject grades across all classes or specific class
         $subjectGrades = $this->getSubjectGrades($subjectName, $academicYear, $term, $class);
-        
+
         // Calculate subject statistics
         $subjectStatistics = $this->calculateSubjectStatistics($subjectGrades);
-        
+
         // Get class-wise performance for the subject
         $classWisePerformance = $this->getClassWiseSubjectPerformance($subjectGrades);
-        
+
         // Get difficulty analysis
         $difficultyAnalysis = $this->analyzeSubjectDifficulty($subjectGrades);
-        
+
         // Get teacher effectiveness (if teacher info is available)
         $teacherEffectiveness = $this->analyzeTeacherEffectiveness($subjectName, $academicYear);
 
@@ -122,26 +122,26 @@ class AcademicPerformanceReportService
 
     public function generateProgressTrackingReport(int $studentId, array $parameters = []): array
     {
-        $startDate = isset($parameters['start_date']) 
-            ? Carbon::parse($parameters['start_date']) 
+        $startDate = isset($parameters['start_date'])
+            ? Carbon::parse($parameters['start_date'])
             : now()->subYear();
-        
-        $endDate = isset($parameters['end_date']) 
-            ? Carbon::parse($parameters['end_date']) 
+
+        $endDate = isset($parameters['end_date'])
+            ? Carbon::parse($parameters['end_date'])
             : now();
 
         // Get student info
         $student = $this->getStudentInfo($studentId);
-        
+
         // Get historical grades
         $historicalGrades = $this->getHistoricalGrades($studentId, $startDate, $endDate);
-        
+
         // Calculate progress trends
         $progressTrends = $this->calculateProgressTrends($historicalGrades);
-        
+
         // Identify improvement and decline patterns
         $patterns = $this->identifyPerformancePatterns($historicalGrades);
-        
+
         // Get goal tracking (if goals are defined)
         $goalProgress = $this->trackAcademicGoals($studentId, $historicalGrades);
 
@@ -339,7 +339,7 @@ class AcademicPerformanceReportService
 
         // Calculate class-wide statistics
         $averagePercentages = $classGrades->pluck('percentage')->filter();
-        
+
         return [
             'class_average_gpa' => round($studentGpas->avg(), 2),
             'class_average_percentage' => round($averagePercentages->avg(), 2),
@@ -356,7 +356,7 @@ class AcademicPerformanceReportService
     {
         return $classGrades->groupBy('subject_name')->map(function ($subjectGrades, $subject) {
             $percentages = $subjectGrades->pluck('percentage')->filter();
-            
+
             return [
                 'subject' => $subject,
                 'total_students' => $subjectGrades->count(),
@@ -435,7 +435,7 @@ class AcademicPerformanceReportService
                 $percentage >= 60 => 'D (60-69)',
                 default => 'F (0-59)',
             };
-        })->map(function($group) {
+        })->map(function ($group) {
             return $group->count();
         });
 
@@ -483,7 +483,7 @@ class AcademicPerformanceReportService
         }
 
         $percentages = $subjectGrades->pluck('percentage')->filter();
-        
+
         return [
             'total_students' => $subjectGrades->count(),
             'average_percentage' => round($percentages->avg(), 2),
@@ -500,7 +500,7 @@ class AcademicPerformanceReportService
     {
         return $subjectGrades->groupBy('class')->map(function ($classData, $className) {
             $percentages = $classData->pluck('percentage')->filter();
-            
+
             return [
                 'class' => $className,
                 'student_count' => $classData->count(),
@@ -516,7 +516,7 @@ class AcademicPerformanceReportService
     {
         $percentages = $subjectGrades->pluck('percentage')->filter();
         $averagePercentage = $percentages->avg();
-        
+
         return [
             'difficulty_level' => $this->assessSubjectDifficulty($averagePercentage),
             'average_score' => round($averagePercentage, 2),
@@ -546,39 +546,39 @@ class AcademicPerformanceReportService
     protected function generateStudentRecommendations(array $metrics, Collection $grades): array
     {
         $recommendations = [];
-        
+
         if ($metrics['average_percentage'] < 70) {
             $recommendations[] = "Consider additional tutoring or study support";
             $recommendations[] = "Review study habits and time management";
         }
-        
+
         if ($metrics['subjects_failed'] > 0) {
             $recommendations[] = "Focus on improving performance in failed subjects";
             $recommendations[] = "Meet with subject teachers for targeted support";
         }
-        
+
         if (isset($metrics['weakest_subject'])) {
             $recommendations[] = "Prioritize improvement in {$metrics['weakest_subject']}";
         }
-        
+
         return $recommendations;
     }
 
     protected function generateSubjectRecommendations(float $averagePercentage, Collection $percentages): array
     {
         $recommendations = [];
-        
+
         if ($averagePercentage < 70) {
             $recommendations[] = "Review curriculum difficulty and teaching methods";
             $recommendations[] = "Consider additional instructional support";
         }
-        
+
         $variance = $this->calculateVariance($percentages);
         if ($variance > 400) { // High variance
             $recommendations[] = "Address large performance gaps between students";
             $recommendations[] = "Implement differentiated instruction strategies";
         }
-        
+
         return $recommendations;
     }
 
@@ -587,12 +587,12 @@ class AcademicPerformanceReportService
         if ($numbers->isEmpty()) {
             return 0;
         }
-        
+
         $mean = $numbers->avg();
         $variance = $numbers->sum(function ($number) use ($mean) {
             return pow($number - $mean, 2);
         }) / $numbers->count();
-        
+
         return sqrt($variance);
     }
 
@@ -601,7 +601,7 @@ class AcademicPerformanceReportService
         if ($numbers->isEmpty()) {
             return 0;
         }
-        
+
         $mean = $numbers->avg();
         return $numbers->sum(function ($number) use ($mean) {
             return pow($number - $mean, 2);

@@ -17,7 +17,7 @@ class SendMassEmailJob implements ShouldQueue
 
     public $timeout = 60; // 1 minute per email
     public $tries = 3;
-    
+
     protected string $email;
     protected array $message;
     protected string $recipientType;
@@ -68,14 +68,13 @@ class SendMassEmailJob implements ShouldQueue
                 'job_id' => $this->jobId,
                 'email' => $this->email
             ]);
-
         } catch (\Exception $e) {
             Log::error("Failed to send mass email", [
                 'job_id' => $this->jobId,
                 'email' => $this->email,
                 'error' => $e->getMessage()
             ]);
-            
+
             throw $e;
         }
     }
@@ -87,8 +86,8 @@ class SendMassEmailJob implements ShouldQueue
     {
         Mail::send('emails.student-notification', $data, function ($message) use ($data) {
             $message->to($this->email)
-                    ->subject($data['subject'])
-                    ->from(config('mail.from.address'), $data['sender_name']);
+                ->subject($data['subject'])
+                ->from(config('mail.from.address'), $data['sender_name']);
         });
     }
 
@@ -99,8 +98,8 @@ class SendMassEmailJob implements ShouldQueue
     {
         Mail::send('emails.parent-notification', $data, function ($message) use ($data) {
             $message->to($this->email)
-                    ->subject($data['subject'])
-                    ->from(config('mail.from.address'), $data['sender_name']);
+                ->subject($data['subject'])
+                ->from(config('mail.from.address'), $data['sender_name']);
         });
     }
 

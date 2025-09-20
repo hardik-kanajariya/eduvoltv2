@@ -155,8 +155,8 @@ class Report extends Model
 
     public function getIsCachedAttribute(): bool
     {
-        return $this->cached_data !== null 
-            && $this->cache_expires_at 
+        return $this->cached_data !== null
+            && $this->cache_expires_at
             && $this->cache_expires_at->isFuture();
     }
 

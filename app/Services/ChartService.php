@@ -178,7 +178,7 @@ class ChartService
     {
         $pieChart = $this->generatePieChart($data, $options);
         $pieChart['type'] = 'doughnut';
-        
+
         return $pieChart;
     }
 
@@ -304,7 +304,7 @@ class ChartService
     public function generateStackedBarChart(array $series, array $labels, array $options = []): array
     {
         $chart = $this->generateMultiBarChart($series, $labels, $options);
-        
+
         $chart['options']['scales']['x'] = [
             'stacked' => true,
         ];
@@ -324,7 +324,7 @@ class ChartService
         $lineChart = $this->generateLineChart($data, $options);
         $lineChart['data']['datasets'][0]['fill'] = true;
         $lineChart['data']['datasets'][0]['backgroundColor'] = $options['backgroundColor'] ?? 'rgba(54, 162, 235, 0.3)';
-        
+
         return $lineChart;
     }
 
@@ -334,7 +334,7 @@ class ChartService
     public function formatTimeSeriesData(Collection $data, string $dateField, string $valueField, string $format = 'Y-m-d'): array
     {
         $formatted = [];
-        
+
         foreach ($data as $item) {
             $date = date($format, strtotime($item[$dateField]));
             if (!isset($formatted[$date])) {
@@ -342,7 +342,7 @@ class ChartService
             }
             $formatted[$date] += $item[$valueField];
         }
-        
+
         ksort($formatted);
         return $formatted;
     }
@@ -381,7 +381,7 @@ class ChartService
     public function generatePerformanceComparisonChart(array $subjects, array $classes, array $scores, array $options = []): array
     {
         $series = [];
-        
+
         foreach ($classes as $class) {
             $series[$class] = $scores[$class] ?? array_fill(0, count($subjects), 0);
         }
@@ -401,7 +401,7 @@ class ChartService
         // This would generate data suitable for a calendar heatmap
         // Format: array of objects with date and value properties
         $heatMapData = [];
-        
+
         foreach ($dailyData as $date => $value) {
             $heatMapData[] = [
                 'date' => $date,
@@ -429,14 +429,14 @@ class ChartService
         if ($max == 0) {
             return 0;
         }
-        
+
         $percentage = ($value / $max) * 100;
-        
+
         if ($percentage >= 80) return 4;
         if ($percentage >= 60) return 3;
         if ($percentage >= 40) return 2;
         if ($percentage >= 20) return 1;
-        
+
         return 0;
     }
 
@@ -454,15 +454,15 @@ class ChartService
             case 'bar':
             case 'area':
                 return is_array($data) && count($data) > 0;
-            
+
             case 'pie':
             case 'doughnut':
                 return is_array($data) && count($data) > 0 && count($data) <= 8; // Limit pie slices
-            
+
             case 'multi-line':
             case 'multi-bar':
                 return is_array($data) && count($data) > 0 && is_array(reset($data));
-            
+
             default:
                 return false;
         }
@@ -479,28 +479,28 @@ class ChartService
                 'label' => 'Attendance Count',
                 'borderColor' => 'rgba(75, 192, 192, 1)',
             ]),
-            
+
             'attendance_monthly' => $this->generateBarChart($data, [
                 'title' => 'Monthly Attendance Summary',
                 'label' => 'Average Attendance (%)',
                 'backgroundColor' => 'rgba(54, 162, 235, 0.6)',
             ]),
-            
+
             'grade_distribution' => $this->generatePieChart($data, [
                 'title' => 'Grade Distribution',
                 'label' => 'Students by Grade',
             ]),
-            
+
             'performance_trends' => $this->generateLineChart($data, [
                 'title' => 'Academic Performance Trends',
                 'label' => 'Average Score',
                 'borderColor' => 'rgba(255, 99, 132, 1)',
             ]),
-            
+
             'class_comparison' => $this->generateMultiBarChart($data['series'], $data['labels'], [
                 'title' => 'Class Performance Comparison',
             ]),
-            
+
             default => $this->generateLineChart($data, $options),
         };
     }

@@ -48,47 +48,112 @@ enum ReportType: string
     {
         return match ($this) {
             self::ATTENDANCE => [
-                'student_name', 'admission_number', 'class', 'date', 'status',
-                'total_days', 'present_days', 'absent_days', 'late_days',
-                'attendance_percentage', 'consecutive_absences'
+                'student_name',
+                'admission_number',
+                'class',
+                'date',
+                'status',
+                'total_days',
+                'present_days',
+                'absent_days',
+                'late_days',
+                'attendance_percentage',
+                'consecutive_absences'
             ],
             self::ACADEMIC => [
-                'student_name', 'admission_number', 'class', 'subject',
-                'current_grade', 'previous_grade', 'grade_trend', 'gpa',
-                'rank_in_class', 'rank_in_grade', 'improvement_score'
+                'student_name',
+                'admission_number',
+                'class',
+                'subject',
+                'current_grade',
+                'previous_grade',
+                'grade_trend',
+                'gpa',
+                'rank_in_class',
+                'rank_in_grade',
+                'improvement_score'
             ],
             self::FINANCIAL => [
-                'student_name', 'admission_number', 'class', 'fee_type',
-                'amount_due', 'amount_paid', 'balance', 'payment_date',
-                'payment_method', 'discount_applied', 'late_fee'
+                'student_name',
+                'admission_number',
+                'class',
+                'fee_type',
+                'amount_due',
+                'amount_paid',
+                'balance',
+                'payment_date',
+                'payment_method',
+                'discount_applied',
+                'late_fee'
             ],
             self::STUDENT_PROFILE => [
-                'admission_number', 'full_name', 'date_of_birth', 'gender',
-                'class', 'section', 'enrollment_date', 'parent_contact',
-                'emergency_contact', 'medical_conditions', 'transport_route'
+                'admission_number',
+                'full_name',
+                'date_of_birth',
+                'gender',
+                'class',
+                'section',
+                'enrollment_date',
+                'parent_contact',
+                'emergency_contact',
+                'medical_conditions',
+                'transport_route'
             ],
             self::TEACHER_PERFORMANCE => [
-                'teacher_name', 'employee_id', 'department', 'subjects_taught',
-                'class_performance_avg', 'student_feedback_score',
-                'attendance_rate', 'professional_development_hours'
+                'teacher_name',
+                'employee_id',
+                'department',
+                'subjects_taught',
+                'class_performance_avg',
+                'student_feedback_score',
+                'attendance_rate',
+                'professional_development_hours'
             ],
             self::EXAM_RESULTS => [
-                'student_name', 'admission_number', 'exam_name', 'subject',
-                'marks_obtained', 'total_marks', 'percentage', 'grade',
-                'rank', 'class_average', 'highest_score', 'lowest_score'
+                'student_name',
+                'admission_number',
+                'exam_name',
+                'subject',
+                'marks_obtained',
+                'total_marks',
+                'percentage',
+                'grade',
+                'rank',
+                'class_average',
+                'highest_score',
+                'lowest_score'
             ],
             self::TIMETABLE => [
-                'class_name', 'subject', 'teacher', 'time_slot', 'day_of_week',
-                'room_number', 'duration', 'resource_requirements'
+                'class_name',
+                'subject',
+                'teacher',
+                'time_slot',
+                'day_of_week',
+                'room_number',
+                'duration',
+                'resource_requirements'
             ],
             self::BEHAVIORAL => [
-                'student_name', 'admission_number', 'incident_date', 'incident_type',
-                'severity_level', 'action_taken', 'parent_notified', 'follow_up_required'
+                'student_name',
+                'admission_number',
+                'incident_date',
+                'incident_type',
+                'severity_level',
+                'action_taken',
+                'parent_notified',
+                'follow_up_required'
             ],
             self::CUSTOM => [
                 // Custom reports can include any available field
-                'student_name', 'admission_number', 'class', 'teacher_name',
-                'date', 'subject', 'grade', 'attendance_status', 'fee_status'
+                'student_name',
+                'admission_number',
+                'class',
+                'teacher_name',
+                'date',
+                'subject',
+                'grade',
+                'attendance_status',
+                'fee_status'
             ],
         };
     }
@@ -97,21 +162,33 @@ enum ReportType: string
     {
         return match ($category) {
             ReportCategory::STUDENT => [
-                self::ATTENDANCE, self::ACADEMIC, self::STUDENT_PROFILE, 
-                self::EXAM_RESULTS, self::BEHAVIORAL
+                self::ATTENDANCE,
+                self::ACADEMIC,
+                self::STUDENT_PROFILE,
+                self::EXAM_RESULTS,
+                self::BEHAVIORAL
             ],
             ReportCategory::CLASS => [
-                self::ATTENDANCE, self::ACADEMIC, self::EXAM_RESULTS, self::TIMETABLE
+                self::ATTENDANCE,
+                self::ACADEMIC,
+                self::EXAM_RESULTS,
+                self::TIMETABLE
             ],
             ReportCategory::TEACHER => [
-                self::TEACHER_PERFORMANCE, self::TIMETABLE
+                self::TEACHER_PERFORMANCE,
+                self::TIMETABLE
             ],
             ReportCategory::SCHOOL => [
-                self::FINANCIAL, self::ATTENDANCE, self::ACADEMIC, 
-                self::TEACHER_PERFORMANCE, self::EXAM_RESULTS
+                self::FINANCIAL,
+                self::ATTENDANCE,
+                self::ACADEMIC,
+                self::TEACHER_PERFORMANCE,
+                self::EXAM_RESULTS
             ],
             ReportCategory::ADMINISTRATIVE => [
-                self::FINANCIAL, self::TIMETABLE, self::CUSTOM
+                self::FINANCIAL,
+                self::TIMETABLE,
+                self::CUSTOM
             ],
         };
     }

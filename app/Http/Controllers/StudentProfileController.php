@@ -59,15 +59,30 @@ class StudentProfileController extends Controller
             if ($user->hasRole('student') && $user->email === $student->email) {
                 // Students can only update limited fields
                 $validated = $request->only([
-                    'phone', 'address', 'emergency_contact_name', 'emergency_contact_phone',
-                    'emergency_contact_relationship', 'medical_conditions', 'allergies', 'medications'
+                    'phone',
+                    'address',
+                    'emergency_contact_name',
+                    'emergency_contact_phone',
+                    'emergency_contact_relationship',
+                    'medical_conditions',
+                    'allergies',
+                    'medications'
                 ]);
             } elseif ($user->hasRole('parent') && $user->email === $student->parent_email) {
                 // Parents can update contact and medical information
                 $validated = $request->only([
-                    'phone', 'address', 'parent_name', 'parent_phone', 'parent_email',
-                    'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relationship',
-                    'medical_conditions', 'allergies', 'medications', 'emergency_medical_info'
+                    'phone',
+                    'address',
+                    'parent_name',
+                    'parent_phone',
+                    'parent_email',
+                    'emergency_contact_name',
+                    'emergency_contact_phone',
+                    'emergency_contact_relationship',
+                    'medical_conditions',
+                    'allergies',
+                    'medications',
+                    'emergency_medical_info'
                 ]);
             }
 

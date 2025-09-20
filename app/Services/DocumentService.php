@@ -16,8 +16,18 @@ use Illuminate\Validation\ValidationException;
 class DocumentService
 {
     private const ALLOWED_EXTENSIONS = [
-        'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif', 'webp', 
-        'xls', 'xlsx', 'txt', 'rtf'
+        'pdf',
+        'doc',
+        'docx',
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+        'xls',
+        'xlsx',
+        'txt',
+        'rtf'
     ];
 
     private const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB default
@@ -68,7 +78,7 @@ class DocumentService
                 'mime_type' => $file->getMimeType(),
                 'file_size' => $file->getSize(),
                 'file_hash' => $fileHash,
-                'is_sensitive' => $documentData['is_sensitive'] ?? 
+                'is_sensitive' => $documentData['is_sensitive'] ??
                     DocumentCategory::from($documentData['category'])->isSensitiveByDefault(),
                 'expires_at' => $documentData['expires_at'] ?? null,
                 'access_permissions' => $documentData['access_permissions'] ?? null,
@@ -85,10 +95,9 @@ class DocumentService
             ]);
 
             return $document;
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             // Clean up uploaded file if it exists
             if (isset($filePath) && Storage::disk('private')->exists($filePath)) {
                 Storage::disk('private')->delete($filePath);
@@ -135,10 +144,9 @@ class DocumentService
             ]);
 
             return $document->fresh();
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Document update failed', [
                 'document_id' => $document->id,
                 'error' => $e->getMessage(),
@@ -159,8 +167,8 @@ class DocumentService
             // Generate unique filename for new version
             $storedFilename = $this->generateStoredFilename($file);
             $filePath = $this->generateFilePath(
-                $originalDocument->student, 
-                $originalDocument->category->value, 
+                $originalDocument->student,
+                $originalDocument->category->value,
                 $storedFilename
             );
 
@@ -198,10 +206,9 @@ class DocumentService
             ]);
 
             return $newVersion;
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             if (isset($filePath) && Storage::disk('private')->exists($filePath)) {
                 Storage::disk('private')->delete($filePath);
             }
@@ -237,10 +244,9 @@ class DocumentService
             ]);
 
             return true;
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Document deletion failed', [
                 'document_id' => $document->id,
                 'error' => $e->getMessage(),
@@ -385,7 +391,7 @@ class DocumentService
     {
         $year = date('Y');
         $month = date('m');
-        
+
         return "documents/students/{$student->id}/{$category}/{$year}/{$month}/{$filename}";
     }
 
@@ -400,9 +406,9 @@ class DocumentService
     {
         // Placeholder for virus scanning implementation
         // This could integrate with ClamAV, VirusTotal API, or other scanning services
-        
+
         Log::info('Virus scan performed', ['file_path' => $filePath]);
-        
+
         // For now, just check if file exists and is readable
         if (!Storage::disk('private')->exists($filePath)) {
             throw new \Exception('File not found for virus scanning');

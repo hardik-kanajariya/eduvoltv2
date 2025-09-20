@@ -22,11 +22,11 @@ class StudentSearchService
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('first_name', 'like', "%{$searchTerm}%")
-                  ->orWhere('last_name', 'like', "%{$searchTerm}%")
-                  ->orWhere('admission_number', 'like', "%{$searchTerm}%")
-                  ->orWhere('email', 'like', "%{$searchTerm}%")
-                  ->orWhere('parent_name', 'like', "%{$searchTerm}%")
-                  ->orWhere('parent_email', 'like', "%{$searchTerm}%");
+                    ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                    ->orWhere('admission_number', 'like', "%{$searchTerm}%")
+                    ->orWhere('email', 'like', "%{$searchTerm}%")
+                    ->orWhere('parent_name', 'like', "%{$searchTerm}%")
+                    ->orWhere('parent_email', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -156,10 +156,16 @@ class StudentSearchService
         // Apply sorting
         $sortBy = $request->get('sort_by', 'admission_number');
         $sortDirection = $request->get('sort_direction', 'asc');
-        
+
         $allowedSortFields = [
-            'admission_number', 'first_name', 'last_name', 'email', 
-            'enrollment_date', 'date_of_birth', 'grade', 'status'
+            'admission_number',
+            'first_name',
+            'last_name',
+            'email',
+            'enrollment_date',
+            'date_of_birth',
+            'grade',
+            'status'
         ];
 
         if (in_array($sortBy, $allowedSortFields)) {
@@ -231,9 +237,9 @@ class StudentSearchService
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('first_name', 'like', "%{$searchTerm}%")
-                  ->orWhere('last_name', 'like', "%{$searchTerm}%")
-                  ->orWhere('admission_number', 'like', "%{$searchTerm}%")
-                  ->orWhere('email', 'like', "%{$searchTerm}%");
+                    ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                    ->orWhere('admission_number', 'like', "%{$searchTerm}%")
+                    ->orWhere('email', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -281,10 +287,10 @@ class StudentSearchService
         if (!empty($data)) {
             // Add headers
             $csvContent .= implode(',', array_keys($data[0])) . "\n";
-            
+
             // Add data rows
             foreach ($data as $row) {
-                $csvContent .= implode(',', array_map(function($value) {
+                $csvContent .= implode(',', array_map(function ($value) {
                     return '"' . str_replace('"', '""', $value ?? '') . '"';
                 }, $row)) . "\n";
             }

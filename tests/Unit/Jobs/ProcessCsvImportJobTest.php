@@ -23,10 +23,10 @@ class ProcessCsvImportJobTest extends TestCase
         $csvContent = "first_name,last_name,email,grade,admission_number\nJohn,Doe,john@example.com,10,STU001";
         $filePath = 'temp/test.csv';
         Storage::put($filePath, $csvContent);
-        
+
         $job = new ProcessCsvImportJob($filePath);
         $job->handle();
-        
+
         $this->assertDatabaseHas('students', [
             'first_name' => 'John',
             'last_name' => 'Doe',
@@ -40,14 +40,14 @@ class ProcessCsvImportJobTest extends TestCase
     {
         // Create existing student
         Student::factory()->create(['admission_number' => 'STU001']);
-        
+
         $csvContent = "first_name,last_name,email,grade,admission_number\nJane,Smith,jane@example.com,10,STU001";
         $filePath = 'temp/test.csv';
         Storage::put($filePath, $csvContent);
-        
+
         $job = new ProcessCsvImportJob($filePath, ['skip_duplicates' => true]);
         $job->handle();
-        
+
         // Should not create duplicate
         $this->assertEquals(1, Student::where('admission_number', 'STU001')->count());
     }
@@ -57,9 +57,9 @@ class ProcessCsvImportJobTest extends TestCase
         $csvContent = "first_name,last_name\nJohn,Doe"; // Missing email
         $filePath = 'temp/test.csv';
         Storage::put($filePath, $csvContent);
-        
+
         $this->expectException(\Exception::class);
-        
+
         $job = new ProcessCsvImportJob($filePath);
         $job->handle();
     }
@@ -68,10 +68,10 @@ class ProcessCsvImportJobTest extends TestCase
     {
         $filePath = 'temp/empty.csv';
         Storage::put($filePath, '');
-        
+
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('CSV file is empty');
-        
+
         $job = new ProcessCsvImportJob($filePath);
         $job->handle();
     }
@@ -81,10 +81,10 @@ class ProcessCsvImportJobTest extends TestCase
         $csvContent = "first_name,last_name,email,grade,admission_number,date_of_birth\nJohn,Doe,john@example.com,10,STU001,2005-06-15";
         $filePath = 'temp/test.csv';
         Storage::put($filePath, $csvContent);
-        
+
         $job = new ProcessCsvImportJob($filePath);
         $job->handle();
-        
+
         $this->assertDatabaseHas('students', [
             'first_name' => 'John',
             'date_of_birth' => '2005-06-15'
@@ -96,10 +96,10 @@ class ProcessCsvImportJobTest extends TestCase
         $csvContent = "first_name,last_name,email,grade\nJohn,Doe,john@example.com,10";
         $filePath = 'temp/test.csv';
         Storage::put($filePath, $csvContent);
-        
+
         $job = new ProcessCsvImportJob($filePath);
         $job->handle();
-        
+
         $student = Student::where('first_name', 'John')->first();
         $this->assertNotNull($student);
         $this->assertNotEmpty($student->admission_number);
@@ -111,10 +111,10 @@ class ProcessCsvImportJobTest extends TestCase
         $csvContent = "first_name,last_name,email,grade,admission_number,medical_conditions,allergies\nJohn,Doe,john@example.com,10,STU001,asthma;diabetes,peanuts;shellfish";
         $filePath = 'temp/test.csv';
         Storage::put($filePath, $csvContent);
-        
+
         $job = new ProcessCsvImportJob($filePath);
         $job->handle();
-        
+
         $student = Student::where('admission_number', 'STU001')->first();
         $this->assertEquals(['asthma', 'diabetes'], $student->medical_conditions);
         $this->assertEquals(['peanuts', 'shellfish'], $student->allergies);
@@ -125,12 +125,12 @@ class ProcessCsvImportJobTest extends TestCase
         $csvContent = "first_name,last_name,email,grade,admission_number\nJohn,Doe,john@example.com,10,STU001";
         $filePath = 'temp/test.csv';
         Storage::put($filePath, $csvContent);
-        
+
         $this->assertTrue(Storage::exists($filePath));
-        
+
         $job = new ProcessCsvImportJob($filePath);
         $job->handle();
-        
+
         $this->assertFalse(Storage::exists($filePath));
     }
 }

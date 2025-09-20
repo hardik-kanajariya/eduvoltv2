@@ -112,7 +112,7 @@ class ReportExportService
         // Generate fresh report data
         $reportBuilder = app(ReportBuilderService::class);
         $reportBuilder->setReport($report);
-        
+
         return $reportBuilder->generateReport();
     }
 
@@ -123,7 +123,7 @@ class ReportExportService
 
         // Generate PDF content
         $pdfContent = $this->generatePdfContent($report, $data);
-        
+
         // Store the PDF file
         Storage::disk('private')->put($filePath, $pdfContent);
 
@@ -144,7 +144,7 @@ class ReportExportService
 
         // Generate Excel content
         $excelContent = $this->generateExcelContent($report, $data);
-        
+
         // Store the Excel file
         Storage::disk('private')->put($filePath, $excelContent);
 
@@ -165,7 +165,7 @@ class ReportExportService
 
         // Generate CSV content
         $csvContent = $this->generateCsvContent($data);
-        
+
         // Store the CSV file
         Storage::disk('private')->put($filePath, $csvContent);
 
@@ -186,7 +186,7 @@ class ReportExportService
 
         // Generate HTML content
         $htmlContent = $this->generateHtmlContent($report, $data);
-        
+
         // Store the HTML file
         Storage::disk('private')->put($filePath, $htmlContent);
 
@@ -207,7 +207,7 @@ class ReportExportService
 
         // Generate JSON content
         $jsonContent = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        
+
         // Store the JSON file
         Storage::disk('private')->put($filePath, $jsonContent);
 
@@ -225,7 +225,7 @@ class ReportExportService
     {
         $timestamp = now()->format('Y-m-d_H-i-s');
         $reportName = Str::slug($report->name);
-        
+
         return "{$reportName}_{$timestamp}.{$extension}";
     }
 
@@ -233,70 +233,70 @@ class ReportExportService
     {
         // This would use a PDF library like TCPDF, DOMPDF, or similar
         // For now, return a simple HTML-to-PDF conversion placeholder
-        
+
         $html = $this->generateHtmlContent($report, $data);
-        
+
         // PDF generation logic would go here
         // Using a placeholder for now
-        return "PDF content for: " . $report->name . "\n" . 
-               "Generated at: " . now() . "\n" .
-               "Data: " . json_encode($data, JSON_PRETTY_PRINT);
+        return "PDF content for: " . $report->name . "\n" .
+            "Generated at: " . now() . "\n" .
+            "Data: " . json_encode($data, JSON_PRETTY_PRINT);
     }
 
     protected function generateExcelContent(Report $report, array $data): string
     {
         // This would use PhpSpreadsheet or similar library
         // For now, return a CSV-like content that can be opened in Excel
-        
+
         $content = "Report: {$report->name}\n";
         $content .= "Generated: " . now() . "\n\n";
-        
+
         // Add data table
         if (isset($data['data']) && is_array($data['data']) && !empty($data['data'])) {
             $firstRow = $data['data'][0];
-            
+
             // Headers
             $headers = array_keys((array) $firstRow);
             $content .= implode("\t", $headers) . "\n";
-            
+
             // Data rows
             foreach ($data['data'] as $row) {
                 $rowData = array_values((array) $row);
                 $content .= implode("\t", $rowData) . "\n";
             }
         }
-        
+
         return $content;
     }
 
     protected function generateCsvContent(array $data): string
     {
         $output = fopen('php://temp', 'r+');
-        
+
         // Add metadata
         fputcsv($output, ['Report Data Export']);
         fputcsv($output, ['Generated at', now()->toDateTimeString()]);
         fputcsv($output, []); // Empty row
-        
+
         // Add data
         if (isset($data['data']) && is_array($data['data']) && !empty($data['data'])) {
             $firstRow = $data['data'][0];
-            
+
             // Headers
             $headers = array_keys((array) $firstRow);
             fputcsv($output, $headers);
-            
+
             // Data rows
             foreach ($data['data'] as $row) {
                 $rowData = array_values((array) $row);
                 fputcsv($output, $rowData);
             }
         }
-        
+
         rewind($output);
         $csvContent = stream_get_contents($output);
         fclose($output);
-        
+
         return $csvContent;
     }
 
@@ -335,25 +335,25 @@ class ReportExportService
         if (isset($data['parameters']) && !empty($data['parameters'])) {
             $html .= '<div class="report-info">
                 <h3>Report Parameters</h3>';
-            
+
             foreach ($data['parameters'] as $key => $value) {
                 $html .= '<p><strong>' . htmlspecialchars(ucwords(str_replace('_', ' ', $key))) . ':</strong> ' . htmlspecialchars($value) . '</p>';
             }
-            
+
             $html .= '</div>';
         }
 
         // Statistics
         if (isset($data['statistics']) && !empty($data['statistics'])) {
             $html .= '<div class="statistics">';
-            
+
             foreach ($data['statistics'] as $key => $value) {
                 $html .= '<div class="stat-card">
                     <div class="stat-value">' . htmlspecialchars($value) . '</div>
                     <div class="stat-label">' . htmlspecialchars(ucwords(str_replace('_', ' ', $key))) . '</div>
                 </div>';
             }
-            
+
             $html .= '</div>';
         }
 
@@ -361,17 +361,17 @@ class ReportExportService
         if (isset($data['data']) && is_array($data['data']) && !empty($data['data'])) {
             $html .= '<h3>Report Data</h3>
                 <table>';
-            
+
             $firstRow = $data['data'][0];
             $headers = array_keys((array) $firstRow);
-            
+
             // Table headers
             $html .= '<thead><tr>';
             foreach ($headers as $header) {
                 $html .= '<th>' . htmlspecialchars(ucwords(str_replace('_', ' ', $header))) . '</th>';
             }
             $html .= '</tr></thead>';
-            
+
             // Table body
             $html .= '<tbody>';
             foreach ($data['data'] as $row) {
@@ -383,7 +383,7 @@ class ReportExportService
                 $html .= '</tr>';
             }
             $html .= '</tbody>';
-            
+
             $html .= '</table>';
         }
 
@@ -391,7 +391,7 @@ class ReportExportService
         if (isset($data['charts']) && !empty($data['charts'])) {
             $html .= '<div class="charts">
                 <h3>Charts and Visualizations</h3>';
-            
+
             foreach ($data['charts'] as $chartName => $chartData) {
                 $html .= '<div class="chart-placeholder">
                     <h4>' . htmlspecialchars($chartData['title'] ?? $chartName) . '</h4>
@@ -399,7 +399,7 @@ class ReportExportService
                     <p>Chart data would be rendered here in interactive view</p>
                 </div>';
             }
-            
+
             $html .= '</div>';
         }
 
@@ -414,18 +414,18 @@ class ReportExportService
     {
         $zipFileName = 'bulk_export_' . now()->format('Y-m-d_H-i-s') . '.zip';
         $zipFilePath = 'exports/bulk/' . $zipFileName;
-        
+
         // Create temporary ZIP file content (simplified)
         $zipContent = "ZIP Archive containing " . count($files) . " {$format} files\n";
         $zipContent .= "Created: " . now() . "\n\n";
-        
+
         foreach ($files as $index => $file) {
             $zipContent .= "File " . ($index + 1) . ": " . $file['file_name'] . "\n";
         }
-        
+
         // Store the ZIP file
         Storage::disk('private')->put($zipFilePath, $zipContent);
-        
+
         return [
             'file_path' => $zipFilePath,
             'file_name' => $zipFileName,
@@ -437,13 +437,13 @@ class ReportExportService
     protected function validateScheduleParameters(array $schedule): void
     {
         $requiredFields = ['frequency', 'time'];
-        
+
         foreach ($requiredFields as $field) {
             if (!isset($schedule[$field])) {
                 throw new Exception("Missing required schedule parameter: {$field}");
             }
         }
-        
+
         $validFrequencies = ['daily', 'weekly', 'monthly', 'quarterly', 'yearly'];
         if (!in_array($schedule['frequency'], $validFrequencies)) {
             throw new Exception("Invalid schedule frequency: {$schedule['frequency']}");
@@ -454,9 +454,9 @@ class ReportExportService
     {
         // This would create a record in a scheduled_exports table
         // For now, return a mock scheduled export
-        
+
         $nextExecution = $this->calculateNextExecution($schedule);
-        
+
         return [
             'id' => Str::uuid(),
             'report_id' => $report->id,
@@ -473,14 +473,14 @@ class ReportExportService
     {
         $frequency = $schedule['frequency'];
         $time = $schedule['time']; // Expected format: HH:MM
-        
+
         $now = now();
         $nextRun = $now->copy();
-        
+
         // Set the time
         [$hour, $minute] = explode(':', $time);
         $nextRun->setTime((int) $hour, (int) $minute, 0);
-        
+
         // If the time has passed today, move to next occurrence
         if ($nextRun->lte($now)) {
             match ($frequency) {
@@ -491,7 +491,7 @@ class ReportExportService
                 'yearly' => $nextRun->addYear(),
             };
         }
-        
+
         return $nextRun;
     }
 
@@ -499,7 +499,7 @@ class ReportExportService
     {
         // Log export activity for audit purposes
         // This could be stored in an activity log table
-        
+
         Log::info('Report exported', [
             'report_id' => $report->id,
             'report_name' => $report->name,
@@ -514,7 +514,7 @@ class ReportExportService
     {
         // This would retrieve export history from logs or database
         // For now, return a mock history
-        
+
         return [
             'report_id' => $report->id,
             'exports' => [
@@ -544,22 +544,22 @@ class ReportExportService
         // Clean up export files older than 7 days
         $expiredDate = now()->subDays(7);
         $deletedCount = 0;
-        
+
         $directories = ['exports/pdf', 'exports/excel', 'exports/csv', 'exports/html', 'exports/json', 'exports/bulk'];
-        
+
         foreach ($directories as $directory) {
             $files = Storage::disk('private')->files($directory);
-            
+
             foreach ($files as $file) {
                 $lastModified = Storage::disk('private')->lastModified($file);
-                
+
                 if (Carbon::createFromTimestamp($lastModified)->lt($expiredDate)) {
                     Storage::disk('private')->delete($file);
                     $deletedCount++;
                 }
             }
         }
-        
+
         return $deletedCount;
     }
 
@@ -567,7 +567,7 @@ class ReportExportService
     {
         // This would analyze export usage statistics
         // For now, return mock statistics
-        
+
         return [
             'total_exports_today' => 15,
             'total_exports_this_week' => 89,

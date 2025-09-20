@@ -71,7 +71,6 @@ class GenerateScheduledReport implements ShouldQueue
                 'report_id' => $this->report->id,
                 'export_path' => $exportResult['file_path'] ?? null,
             ]);
-
         } catch (\Exception $e) {
             // Mark report as failed
             $this->report->markAsFailed();
@@ -128,7 +127,6 @@ class GenerateScheduledReport implements ShouldQueue
                 'report_id' => $this->report->id,
                 'user_email' => $this->user->email,
             ]);
-
         } catch (\Exception $e) {
             Log::warning('Failed to send report notification email', [
                 'report_id' => $this->report->id,
@@ -156,7 +154,6 @@ class GenerateScheduledReport implements ShouldQueue
                 'report_id' => $this->report->id,
                 'user_email' => $this->user->email,
             ]);
-
         } catch (\Exception $e) {
             Log::error('Failed to send report failure notification', [
                 'report_id' => $this->report->id,

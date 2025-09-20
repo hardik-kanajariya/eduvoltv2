@@ -17,15 +17,15 @@ class AttendanceReportService
         $section = $parameters['section'] ?? null;
 
         $query = $this->buildBaseAttendanceQuery();
-        
+
         // Filter by date
         $query->whereDate('attendances.date', $date);
-        
+
         // Apply class and section filters
         if ($class) {
             $query->where('students.class', $class);
         }
-        
+
         if ($section) {
             $query->where('students.section', $section);
         }
@@ -51,10 +51,10 @@ class AttendanceReportService
 
     public function generateWeeklyAttendanceReport(array $parameters = []): array
     {
-        $startDate = isset($parameters['start_date']) 
-            ? Carbon::parse($parameters['start_date']) 
+        $startDate = isset($parameters['start_date'])
+            ? Carbon::parse($parameters['start_date'])
             : now()->startOfWeek();
-        
+
         $endDate = $startDate->copy()->endOfWeek();
         $class = $parameters['class'] ?? null;
         $section = $parameters['section'] ?? null;
@@ -67,7 +67,7 @@ class AttendanceReportService
                 'class' => $class,
                 'section' => $section,
             ]);
-            
+
             $dailyData->push([
                 'date' => $date->format('Y-m-d'),
                 'day_name' => $date->format('l'),
@@ -103,15 +103,15 @@ class AttendanceReportService
         $endDate = $startDate->copy()->endOfMonth();
 
         $query = $this->buildBaseAttendanceQuery();
-        
+
         // Filter by month
         $query->whereBetween('attendances.date', [$startDate, $endDate]);
-        
+
         // Apply class and section filters
         if ($class) {
             $query->where('students.class', $class);
         }
-        
+
         if ($section) {
             $query->where('students.section', $section);
         }
@@ -154,12 +154,12 @@ class AttendanceReportService
 
     public function generateAttendanceTrendsReport(array $parameters = []): array
     {
-        $startDate = isset($parameters['start_date']) 
-            ? Carbon::parse($parameters['start_date']) 
+        $startDate = isset($parameters['start_date'])
+            ? Carbon::parse($parameters['start_date'])
             : now()->subMonths(6);
-        
-        $endDate = isset($parameters['end_date']) 
-            ? Carbon::parse($parameters['end_date']) 
+
+        $endDate = isset($parameters['end_date'])
+            ? Carbon::parse($parameters['end_date'])
             : now();
 
         $class = $parameters['class'] ?? null;
@@ -168,7 +168,7 @@ class AttendanceReportService
         // Generate monthly trends
         $monthlyTrends = collect();
         $current = $startDate->copy()->startOfMonth();
-        
+
         while ($current->lte($endDate)) {
             $monthData = $this->generateMonthlyAttendanceReport([
                 'month' => $current->month,
@@ -176,7 +176,7 @@ class AttendanceReportService
                 'class' => $class,
                 'section' => $section,
             ]);
-            
+
             $monthlyTrends->push([
                 'month' => $current->format('Y-m'),
                 'month_name' => $current->format('F Y'),
@@ -184,7 +184,7 @@ class AttendanceReportService
                 'total_students' => count($monthData['students']),
                 'chronic_absentees' => collect($monthData['students'])->where('attendance_percentage', '<', 80)->count(),
             ]);
-            
+
             $current->addMonth();
         }
 
@@ -205,22 +205,22 @@ class AttendanceReportService
 
     public function generateAbsenteeismReport(array $parameters = []): array
     {
-        $startDate = isset($parameters['start_date']) 
-            ? Carbon::parse($parameters['start_date']) 
+        $startDate = isset($parameters['start_date'])
+            ? Carbon::parse($parameters['start_date'])
             : now()->subDays(30);
-        
-        $endDate = isset($parameters['end_date']) 
-            ? Carbon::parse($parameters['end_date']) 
+
+        $endDate = isset($parameters['end_date'])
+            ? Carbon::parse($parameters['end_date'])
             : now();
 
         $minAbsences = $parameters['min_absences'] ?? 5;
         $class = $parameters['class'] ?? null;
 
         $query = $this->buildBaseAttendanceQuery();
-        
+
         // Filter by date range
         $query->whereBetween('attendances.date', [$startDate, $endDate]);
-        
+
         // Filter by class if specified
         if ($class) {
             $query->where('students.class', $class);
@@ -241,8 +241,8 @@ class AttendanceReportService
             DB::raw('(SUM(CASE WHEN attendances.status = "absent" THEN 1 ELSE 0 END) * 100.0 / COUNT(attendances.id)) as absence_rate'),
             DB::raw('MAX(CASE WHEN attendances.status = "absent" THEN attendances.date END) as last_absence_date')
         ])
-        ->groupBy(['students.id', 'students.admission_number', 'users.first_name', 'users.last_name', 'students.class', 'students.section', 'students.parent_contact'])
-        ->havingRaw('SUM(CASE WHEN attendances.status = "absent" THEN 1 ELSE 0 END) >= ?', [$minAbsences]);
+            ->groupBy(['students.id', 'students.admission_number', 'users.first_name', 'users.last_name', 'students.class', 'students.section', 'students.parent_contact'])
+            ->havingRaw('SUM(CASE WHEN attendances.status = "absent" THEN 1 ELSE 0 END) >= ?', [$minAbsences]);
 
         $absenteeData = $query->get();
 
@@ -418,14 +418,14 @@ class AttendanceReportService
     protected function generateAttendanceInsights(Collection $trends, array $declining): array
     {
         $insights = [];
-        
+
         // Overall trend
         $firstMonth = $trends->first();
         $lastMonth = $trends->last();
-        
+
         if ($firstMonth && $lastMonth) {
             $trendChange = $lastMonth['attendance_rate'] - $firstMonth['attendance_rate'];
-            
+
             if ($trendChange > 2) {
                 $insights[] = "Overall attendance has improved by " . round($trendChange, 1) . "% over the period.";
             } elseif ($trendChange < -2) {
@@ -434,34 +434,34 @@ class AttendanceReportService
                 $insights[] = "Overall attendance has remained stable over the period.";
             }
         }
-        
+
         // Chronic absenteeism trend
         $avgChronicAbsentees = $trends->avg('chronic_absentees');
         if ($avgChronicAbsentees > 0) {
             $insights[] = "On average, " . round($avgChronicAbsentees) . " students show chronic absenteeism patterns.";
         }
-        
+
         return $insights;
     }
 
     protected function generateAbsenteeismRecommendations(array $categorizedData): array
     {
         $recommendations = [];
-        
+
         if ($categorizedData['critical_risk'] > 0) {
             $recommendations[] = "Immediate intervention required for {$categorizedData['critical_risk']} students with critical absenteeism.";
             $recommendations[] = "Schedule parent meetings and develop attendance improvement plans.";
         }
-        
+
         if ($categorizedData['high_risk'] > 0) {
             $recommendations[] = "Monitor {$categorizedData['high_risk']} students with high absenteeism closely.";
             $recommendations[] = "Implement early warning notifications for these students.";
         }
-        
+
         if ($categorizedData['moderate_risk'] > 0) {
             $recommendations[] = "Provide additional support for {$categorizedData['moderate_risk']} students showing moderate absenteeism.";
         }
-        
+
         return $recommendations;
     }
 
@@ -471,7 +471,7 @@ class AttendanceReportService
         // For now, estimate excluding weekends
         $start = Carbon::create($year, $month, 1);
         $end = $start->copy()->endOfMonth();
-        
+
         $schoolDays = 0;
         while ($start->lte($end)) {
             if ($start->isWeekday()) {
@@ -479,7 +479,7 @@ class AttendanceReportService
             }
             $start->addDay();
         }
-        
+
         return $schoolDays;
     }
 
@@ -525,7 +525,7 @@ class AttendanceReportService
     {
         $performanceLevels = $data->groupBy(function ($record) {
             return $this->getAttendancePerformanceLevel($record->attendance_percentage);
-        })->map(function($group) {
+        })->map(function ($group) {
             return $group->count();
         });
 
@@ -568,7 +568,7 @@ class AttendanceReportService
     {
         $riskLevels = $data->groupBy(function ($record) {
             return $this->getAbsenteeismRiskLevel($record->absence_rate);
-        })->map(function($group) {
+        })->map(function ($group) {
             return $group->count();
         });
 

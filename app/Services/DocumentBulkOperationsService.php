@@ -40,7 +40,7 @@ class DocumentBulkOperationsService
                 try {
                     $student = Student::findOrFail($fileData['student_id']);
                     $file = $fileData['file'];
-                    
+
                     $document = $this->documentService->uploadDocument(
                         $student,
                         $file,
@@ -54,7 +54,6 @@ class DocumentBulkOperationsService
                         'document_id' => $document->id,
                         'filename' => $file->getClientOriginalName(),
                     ];
-
                 } catch (\Exception $e) {
                     $results['failed'][] = [
                         'student_id' => $fileData['student_id'] ?? null,
@@ -74,10 +73,9 @@ class DocumentBulkOperationsService
             ]);
 
             return $results;
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Bulk document upload failed', [
                 'error' => $e->getMessage(),
                 'uploaded_by' => $uploader->id,
@@ -107,7 +105,7 @@ class DocumentBulkOperationsService
             foreach ($documentIds as $documentId) {
                 try {
                     $document = Document::findOrFail($documentId);
-                    
+
                     // Check if user can update this document
                     if (!$document->hasAccess($user)) {
                         throw new \Exception('Access denied to document');
@@ -122,7 +120,6 @@ class DocumentBulkOperationsService
                         'old_category' => $oldCategory->label(),
                         'new_category' => $newCategory->label(),
                     ];
-
                 } catch (\Exception $e) {
                     $results['failed'][] = [
                         'document_id' => $documentId,
@@ -142,10 +139,9 @@ class DocumentBulkOperationsService
             ]);
 
             return $results;
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Bulk document categorization failed', [
                 'error' => $e->getMessage(),
                 'updated_by' => $user->id,
@@ -172,7 +168,7 @@ class DocumentBulkOperationsService
             foreach ($documentIds as $documentId) {
                 try {
                     $document = Document::findOrFail($documentId);
-                    
+
                     // Check if user can delete this document
                     if (!$document->hasAccess($user)) {
                         throw new \Exception('Access denied to document');
@@ -185,7 +181,6 @@ class DocumentBulkOperationsService
                         'title' => $document->title,
                         'student_name' => $document->student->full_name,
                     ];
-
                 } catch (\Exception $e) {
                     $results['failed'][] = [
                         'document_id' => $documentId,
@@ -204,10 +199,9 @@ class DocumentBulkOperationsService
             ]);
 
             return $results;
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Bulk document deletion failed', [
                 'error' => $e->getMessage(),
                 'deleted_by' => $user->id,
@@ -234,7 +228,7 @@ class DocumentBulkOperationsService
             foreach ($documentIds as $documentId) {
                 try {
                     $document = Document::findOrFail($documentId);
-                    
+
                     if (!$document->hasAccess($user)) {
                         throw new \Exception('Access denied to document');
                     }
@@ -245,7 +239,6 @@ class DocumentBulkOperationsService
                         'document_id' => $document->id,
                         'title' => $document->title,
                     ];
-
                 } catch (\Exception $e) {
                     $results['failed'][] = [
                         'document_id' => $documentId,
@@ -264,10 +257,9 @@ class DocumentBulkOperationsService
             ]);
 
             return $results;
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Bulk document archiving failed', [
                 'error' => $e->getMessage(),
                 'archived_by' => $user->id,
@@ -284,7 +276,7 @@ class DocumentBulkOperationsService
     {
         // Validate access to all documents
         $documents = Document::whereIn('id', $documentIds)->get();
-        
+
         foreach ($documents as $document) {
             if (!$document->hasAccess($user)) {
                 throw new \Exception("Access denied to document: {$document->title}");
@@ -294,14 +286,14 @@ class DocumentBulkOperationsService
         // Create temporary ZIP file
         $zipFilename = 'bulk_download_' . now()->format('Y-m-d_H-i-s') . '_' . uniqid() . '.zip';
         $zipPath = storage_path('app/temp/' . $zipFilename);
-        
+
         // Ensure temp directory exists
         if (!file_exists(dirname($zipPath))) {
             mkdir(dirname($zipPath), 0755, true);
         }
 
         $zip = new ZipArchive();
-        
+
         if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
             throw new \Exception('Cannot create ZIP file');
         }
@@ -309,26 +301,26 @@ class DocumentBulkOperationsService
         try {
             foreach ($documents as $document) {
                 $filePath = Storage::disk('private')->path($document->file_path);
-                
+
                 if (file_exists($filePath)) {
                     // Create a folder structure in ZIP: student_name/category/filename
                     $studentName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $document->student->full_name);
                     $category = $document->category->label();
                     $filename = $document->original_filename;
-                    
+
                     $zipEntryName = "{$studentName}/{$category}/{$filename}";
-                    
+
                     // Handle duplicate filenames
                     $counter = 1;
                     $originalZipEntryName = $zipEntryName;
                     while ($zip->locateName($zipEntryName) !== false) {
                         $pathInfo = pathinfo($originalZipEntryName);
-                        $zipEntryName = $pathInfo['dirname'] . '/' . 
-                            $pathInfo['filename'] . "_({$counter})." . 
+                        $zipEntryName = $pathInfo['dirname'] . '/' .
+                            $pathInfo['filename'] . "_({$counter})." .
                             ($pathInfo['extension'] ?? '');
                         $counter++;
                     }
-                    
+
                     $zip->addFile($filePath, $zipEntryName);
                 }
             }
@@ -342,15 +334,14 @@ class DocumentBulkOperationsService
             ]);
 
             return $zipFilename;
-
         } catch (\Exception $e) {
             $zip->close();
-            
+
             // Clean up failed ZIP file
             if (file_exists($zipPath)) {
                 unlink($zipPath);
             }
-            
+
             Log::error('Bulk download ZIP creation failed', [
                 'error' => $e->getMessage(),
                 'requested_by' => $user->id,
@@ -366,7 +357,7 @@ class DocumentBulkOperationsService
     public function getBulkDownloadPath(string $filename): string
     {
         $filePath = storage_path('app/temp/' . $filename);
-        
+
         if (!file_exists($filePath)) {
             throw new \Exception('Download file not found or has expired');
         }
@@ -381,7 +372,7 @@ class DocumentBulkOperationsService
     {
         $tempDir = storage_path('app/temp');
         $cleanedCount = 0;
-        
+
         if (!is_dir($tempDir)) {
             return 0;
         }
