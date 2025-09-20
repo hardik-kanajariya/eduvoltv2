@@ -114,9 +114,21 @@ class AcademicGrade implements ValidationRule
             return;
         }
 
-        $grade = strtoupper(trim($value));
+        $grade = trim($value);
 
-        if (!in_array($grade, $this->allowedLetterGrades)) {
+        // For default grades (A+, A, etc.), use case-insensitive comparison
+        $defaultGrades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
+        $isDefaultGrades = $this->allowedLetterGrades === $defaultGrades;
+
+        if ($isDefaultGrades) {
+            $grade = strtoupper($grade);
+            $allowedGrades = array_map('strtoupper', $this->allowedLetterGrades);
+        } else {
+            // For custom grades, use case-sensitive comparison
+            $allowedGrades = $this->allowedLetterGrades;
+        }
+
+        if (!in_array($grade, $allowedGrades)) {
             $allowedGrades = implode(', ', $this->allowedLetterGrades);
             $fail("The :attribute must be one of the following grades: {$allowedGrades}.");
         }
