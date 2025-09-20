@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\StudentRegistrationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\EmailVerificationController;
@@ -102,6 +103,20 @@ Route::middleware('auth')->group(function () {
         Route::post('/step4', [StudentRegistrationController::class, 'processStep4'])->name('process-step4');
         Route::get('/review', [StudentRegistrationController::class, 'review'])->name('review');
         Route::post('/restart', [StudentRegistrationController::class, 'restart'])->name('restart');
+    });
+
+    // Student Profile Management Routes
+    Route::prefix('students/{student}/profile')->name('students.profile.')->middleware(['verified'])->group(function () {
+        Route::get('/', [StudentProfileController::class, 'show'])->name('show');
+        Route::get('/edit', [StudentProfileController::class, 'edit'])->name('edit');
+        Route::put('/update', [StudentProfileController::class, 'update'])->name('update');
+        Route::get('/medical', [StudentProfileController::class, 'medical'])->name('medical');
+        Route::get('/academic', [StudentProfileController::class, 'academic'])->name('academic');
+        Route::get('/documents', [StudentProfileController::class, 'documents'])->name('documents');
+        Route::post('/documents/upload', [StudentProfileController::class, 'uploadDocuments'])->name('documents.upload');
+        Route::delete('/documents/delete', [StudentProfileController::class, 'deleteDocument'])->name('documents.delete');
+        Route::get('/contacts', [StudentProfileController::class, 'contacts'])->name('contacts');
+        Route::get('/print', [StudentProfileController::class, 'print'])->name('print');
     });
 
     // Admin routes (requires admin role)
