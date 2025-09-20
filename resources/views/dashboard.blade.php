@@ -1,148 +1,205 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+@extends('layouts.dashboard')
 
-    <title>{{ config('app.name', 'EduVoltV2') }} - Dashboard</title>
+@section('title', 'Dashboard')
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+@section('breadcrumb')
+    <a href="{{ route('dashboard') }}" class="breadcrumb-item active">Dashboard</a>
+@endsection
 
-    <!-- Styles -->
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <style>
-            body {
-                font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-                background-color: #f9fafb;
-                margin: 0;
-                padding: 0;
-            }
-            .container {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 2rem;
-            }
-            .header {
-                background: white;
-                border-radius: 0.5rem;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                padding: 1.5rem;
-                margin-bottom: 2rem;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .welcome {
-                font-size: 1.5rem;
-                font-weight: 600;
-                color: #111827;
-            }
-            .user-info {
-                color: #6b7280;
-                font-size: 0.875rem;
-            }
-            .logout-btn {
-                background-color: #dc2626;
-                color: white;
-                border: none;
-                padding: 0.5rem 1rem;
-                border-radius: 0.375rem;
-                cursor: pointer;
-                font-size: 0.875rem;
-                text-decoration: none;
-                display: inline-block;
-            }
-            .logout-btn:hover {
-                background-color: #b91c1c;
-            }
-            .card {
-                background: white;
-                border-radius: 0.5rem;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-                padding: 1.5rem;
-                margin-bottom: 1.5rem;
-            }
-            .verification-notice {
-                background-color: #fef3c7;
-                border: 1px solid #f59e0b;
-                color: #92400e;
-                padding: 1rem;
-                border-radius: 0.375rem;
-                margin-bottom: 1.5rem;
-            }
-            .verification-notice a {
-                color: #92400e;
-                text-decoration: underline;
-            }
-        </style>
+@section('content')
+    <!-- Verification Notice -->
+    @if (request()->get('verified'))
+        <div class="notification success">
+            ✅ Your email has been verified successfully!
+        </div>
+    @elseif (!$user->hasVerifiedEmail())
+        <div class="notification warning">
+            📧 Please verify your email address. <a href="{{ route('verification.notice') }}" style="color: inherit; text-decoration: underline;">Click here to resend verification email</a>.
+        </div>
     @endif
-</head>
-<body>
-    <div class="container">
-        <!-- Verification Notice -->
-        @if (request()->get('verified'))
-            <div class="verification-notice">
-                ✅ Your email has been verified successfully!
-            </div>
-        @elseif (!$user->hasVerifiedEmail())
-            <div class="verification-notice">
-                📧 Please verify your email address. <a href="{{ route('verification.notice') }}">Click here to resend verification email</a>.
-            </div>
-        @endif
 
-        <div class="header">
-            <div>
-                <h1 class="welcome">Welcome to {{ config('app.name', 'EduVoltV2') }}</h1>
-                <div class="user-info">
-                    Logged in as: {{ $user->name }} ({{ $user->email }})
-                    @if ($user->email_verified_at)
-                        • Email verified ✅
-                    @else
-                        • Email not verified ❌
-                    @endif
-                </div>
-            </div>
-            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    Logout
-                </button>
-            </form>
-        </div>
-
-        <div class="card">
-            <h2 style="margin-top: 0; color: #111827;">Dashboard</h2>
-            <p style="color: #6b7280;">
-                You're successfully logged in to the EduVoltV2 platform! This is your dashboard where you can manage your account and access educational content.
-            </p>
-            
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Welcome to {{ config('app.name', 'EduVoltV2') }}</h1>
+        <p class="page-subtitle">
+            Logged in as: {{ $user->name }} ({{ $user->email }})
             @if ($user->email_verified_at)
-                <p style="color: #059669;">
-                    🎉 Your account is fully set up and ready to use.
-                </p>
+                • Email verified ✅
             @else
-                <p style="color: #dc2626;">
-                    ⚠️ Please verify your email address to access all features.
-                </p>
+                • Email not verified ❌
             @endif
+        </p>
+    </div>
+
+    <!-- Dashboard Overview -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Quick Stats Cards -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Students</h3>
+            </div>
+            <div class="card-body">
+                <div style="font-size: 2rem; font-weight: 600; color: #3b82f6; margin-bottom: 0.5rem;">0</div>
+                <p style="color: #6b7280; margin: 0;">Total enrolled students</p>
+            </div>
         </div>
 
         <div class="card">
-            <h3 style="margin-top: 0; color: #111827;">Account Information</h3>
-            <ul style="color: #6b7280; line-height: 1.6;">
-                <li><strong>Name:</strong> {{ $user->name }}</li>
-                <li><strong>Email:</strong> {{ $user->email }}</li>
-                <li><strong>Member since:</strong> {{ $user->created_at->format('F j, Y') }}</li>
-                @if ($user->email_verified_at)
-                    <li><strong>Email verified:</strong> {{ $user->email_verified_at->format('F j, Y g:i A') }}</li>
-                @endif
-            </ul>
+            <div class="card-header">
+                <h3 class="card-title">Teachers</h3>
+            </div>
+            <div class="card-body">
+                <div style="font-size: 2rem; font-weight: 600; color: #10b981; margin-bottom: 0.5rem;">0</div>
+                <p style="color: #6b7280; margin: 0;">Active teaching staff</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Classes</h3>
+            </div>
+            <div class="card-body">
+                <div style="font-size: 2rem; font-weight: 600; color: #f59e0b; margin-bottom: 0.5rem;">0</div>
+                <p style="color: #6b7280; margin: 0;">Active classes</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Courses</h3>
+            </div>
+            <div class="card-body">
+                <div style="font-size: 2rem; font-weight: 600; color: #ef4444; margin-bottom: 0.5rem;">0</div>
+                <p style="color: #6b7280; margin: 0;">Available courses</p>
+            </div>
         </div>
     </div>
-</body>
-</html>
+
+    <!-- Main Dashboard Content -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Recent Activity</h3>
+            </div>
+            <div class="card-body">
+                <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                    <p>No recent activity to display.</p>
+                    <p style="font-size: 0.875rem;">Activities will appear here as users interact with the system.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <a href="#" style="display: flex; align-items: center; padding: 0.75rem; background: #f3f4f6; border-radius: 0.375rem; text-decoration: none; color: #374151; transition: background-color 0.2s;">
+                        <span style="margin-right: 0.75rem;">👥</span>
+                        Add New Student
+                    </a>
+                    <a href="#" style="display: flex; align-items: center; padding: 0.75rem; background: #f3f4f6; border-radius: 0.375rem; text-decoration: none; color: #374151; transition: background-color 0.2s;">
+                        <span style="margin-right: 0.75rem;">👨‍🏫</span>
+                        Add New Teacher
+                    </a>
+                    <a href="#" style="display: flex; align-items: center; padding: 0.75rem; background: #f3f4f6; border-radius: 0.375rem; text-decoration: none; color: #374151; transition: background-color 0.2s;">
+                        <span style="margin-right: 0.75rem;">🏛️</span>
+                        Create New Class
+                    </a>
+                    <a href="#" style="display: flex; align-items: center; padding: 0.75rem; background: #f3f4f6; border-radius: 0.375rem; text-decoration: none; color: #374151; transition: background-color 0.2s;">
+                        <span style="margin-right: 0.75rem;">📚</span>
+                        Add New Course
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Information -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Account Information</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div>
+                    <h4 style="margin: 0 0 0.5rem 0; color: #374151;">Profile Details</h4>
+                    <ul style="color: #6b7280; line-height: 1.6; margin: 0; padding-left: 1.25rem;">
+                        <li><strong>Name:</strong> {{ $user->name }}</li>
+                        <li><strong>Email:</strong> {{ $user->email }}</li>
+                        <li><strong>Member since:</strong> {{ $user->created_at->format('F j, Y') }}</li>
+                        @if ($user->email_verified_at)
+                            <li><strong>Email verified:</strong> {{ $user->email_verified_at->format('F j, Y g:i A') }}</li>
+                        @endif
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 style="margin: 0 0 0.5rem 0; color: #374151;">System Status</h4>
+                    <ul style="color: #6b7280; line-height: 1.6; margin: 0; padding-left: 1.25rem;">
+                        @if ($user->email_verified_at)
+                            <li style="color: #059669;">🎉 Account is fully set up and ready to use</li>
+                        @else
+                            <li style="color: #dc2626;">⚠️ Email verification required</li>
+                        @endif
+                        <li>✅ Authentication system active</li>
+                        <li>✅ Dashboard access granted</li>
+                        <li>✅ Multi-tenant support enabled</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('right-sidebar')
+    <!-- System Information -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+            <h3 class="card-title">System Info</h3>
+        </div>
+        <div class="card-body">
+            <div style="font-size: 0.875rem; color: #6b7280; line-height: 1.6;">
+                <div style="margin-bottom: 0.75rem;">
+                    <strong>Platform:</strong> EduVoltV2
+                </div>
+                <div style="margin-bottom: 0.75rem;">
+                    <strong>Version:</strong> 2.0.0
+                </div>
+                <div style="margin-bottom: 0.75rem;">
+                    <strong>Environment:</strong> {{ app()->environment() }}
+                </div>
+                <div>
+                    <strong>Laravel:</strong> {{ app()->version() }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Updates -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Recent Updates</h3>
+        </div>
+        <div class="card-body">
+            <div style="font-size: 0.875rem; color: #6b7280; line-height: 1.6;">
+                <div style="padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;">
+                    <div style="font-weight: 500; color: #374151;">Dashboard Layout</div>
+                    <div style="font-size: 0.75rem;">3-column admin interface implemented</div>
+                </div>
+                <div style="padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;">
+                    <div style="font-weight: 500; color: #374151;">Authentication</div>
+                    <div style="font-size: 0.75rem;">Login and auth issues resolved</div>
+                </div>
+                <div style="padding: 0.75rem 0;">
+                    <div style="font-weight: 500; color: #374151;">RBAC System</div>
+                    <div style="font-size: 0.75rem;">Role-based access control active</div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
