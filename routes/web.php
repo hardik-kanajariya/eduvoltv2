@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\TwoFactorController;
+use App\Http\Controllers\Auth\SocialController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,6 +31,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [PasswordResetController::class, 'reset'])
         ->middleware('throttle:5,1') // Limit to 5 attempts per minute
         ->name('password.update');
+
+    // Social Authentication routes
+    Route::get('/auth/{provider}', [SocialController::class, 'redirectToProvider'])
+        ->where('provider', 'google|microsoft')
+        ->name('social.redirect');
+    Route::get('/auth/{provider}/callback', [SocialController::class, 'handleProviderCallback'])
+        ->where('provider', 'google|microsoft')
+        ->name('social.callback');
 });
 
 Route::middleware('auth')->group(function () {
