@@ -52,6 +52,23 @@ Thank you for considering contributing to the Laravel framework! The contributio
 
 In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
+## Code Quality
+
+EduVoltV2 follows PSR-12 coding standards with automated enforcement:
+
+```bash
+# Check code style and run tests
+composer quality
+
+# Fix code formatting
+composer format
+
+# Install Git hooks for automatic checks
+./scripts/install-hooks.sh
+```
+
+See [docs/CODE_QUALITY.md](docs/CODE_QUALITY.md) for detailed information.
+
 ## Security Vulnerabilities
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
