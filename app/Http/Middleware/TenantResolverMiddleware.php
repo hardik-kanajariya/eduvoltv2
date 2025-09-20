@@ -49,8 +49,18 @@ class TenantResolverMiddleware
 
         // Fallback to domain-based detection
         $domain = $request->getHost();
+        $tenant = $this->getTenantByDomain($domain);
 
-        return $this->getTenantByDomain($domain);
+        if ($tenant) {
+            return $tenant;
+        }
+
+        // For development environments (localhost, 127.0.0.1, etc.)
+        if ($this->isDevelopmentEnvironment($request)) {
+            return $this->getDefaultTenant();
+        }
+
+        return null;
     }
 
     /**
@@ -134,6 +144,58 @@ class TenantResolverMiddleware
 
         // Show maintenance page for inactive tenants
         return response()->view('errors.tenant-inactive', compact('tenant'), 503);
+    }
+
+    /**
+     * Check if this is a development environment.
+     */
+    protected function isDevelopmentEnvironment(Request $request): bool
+    {
+        $host = $request->getHost();
+
+        return in_array($host, [
+            'localhost',
+            '127.0.0.1',
+            '::1',
+        ]) || filter_var($host, FILTER_VALIDATE_IP) || app()->environment('local', 'testing');
+    }
+
+    /**
+     * Get default tenant for development environments.
+     */
+    protected function getDefaultTenant(): ?Tenant
+    {
+        // Try to get a tenant from session first (for tenant switching in dev)
+        if (session()->has('dev_tenant_id')) {
+            $tenant = Tenant::find(session('dev_tenant_id'));
+            if ($tenant) {
+                return $tenant;
+            }
+        }
+
+        // Fallback to first active tenant or create a default one
+        return Tenant::where('status', 'active')->first() ?? $this->createDefaultTenant();
+    }
+
+    /**
+     * Create a default tenant for development.
+     */
+    protected function createDefaultTenant(): Tenant
+    {
+        return Tenant::firstOrCreate(
+            ['domain' => 'localhost'],
+            [
+                'name' => 'Development Tenant',
+                'slug' => 'development',
+                'subdomain' => 'dev',
+                'status' => 'active',
+                'settings' => [
+                    'max_students' => 1000,
+                    'max_teachers' => 100,
+                    'features' => ['attendance', 'grades', 'reports', 'timetable'],
+                ],
+            ]
+        );
     }
 }
 

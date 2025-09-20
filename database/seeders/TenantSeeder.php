@@ -12,6 +12,20 @@ class TenantSeeder extends Seeder
      */
     public function run(): void
     {
+        // Development tenant for localhost
+        Tenant::create([
+            'name' => 'Development Tenant',
+            'slug' => 'development',
+            'domain' => 'localhost',
+            'subdomain' => 'dev',
+            'status' => 'active',
+            'settings' => [
+                'max_students' => 1000,
+                'max_teachers' => 100,
+                'features' => ['attendance', 'grades', 'reports', 'timetable'],
+            ],
+        ]);
+
         Tenant::create([
             'name' => 'Demo School',
             'slug' => 'demo-school',
@@ -28,6 +42,7 @@ class TenantSeeder extends Seeder
         Tenant::create([
             'name' => 'Test Institution',
             'slug' => 'test-institution',
+            'domain' => 'test.eduvolt.com',
             'subdomain' => 'test',
             'status' => 'active',
             'settings' => [
