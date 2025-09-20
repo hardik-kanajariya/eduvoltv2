@@ -1,6 +1,6 @@
-# EduVoltV2 - Educational SaaS Platform
+# EduVoltV2 - Educational Management Platform
 
-EduVoltV2 is a Laravel 12-based educational SaaS platform with comprehensive multi-tenant architecture, validation systems, and event-driven design. The platform is **FULLY IMPLEMENTED** with sophisticated foundation patterns and comprehensive testing suite.
+EduVoltV2 is a Laravel 12-based educational management platform with comprehensive role-based access control, validation systems, and event-driven design. The platform is **FULLY IMPLEMENTED** with sophisticated foundation patterns and comprehensive testing suite.
 
 **ALWAYS reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.**
 
@@ -10,20 +10,20 @@ EduVoltV2 is a Laravel 12-based educational SaaS platform with comprehensive mul
 
 ### Current Architecture
 - **Backend**: Laravel 12.x (PHP 8.2+) with specialized form request validation system
-- **Database**: Multi-tenant architecture with full schema implemented (tenants, users, sessions, jobs, cache)
+- **Database**: Single-tenant architecture with role-based access control (users, roles, permissions, sessions, jobs, cache)
 - **Queue System**: Redis-based with comprehensive health monitoring and testing tools
 - **Frontend**: Tailwind CSS 4.0 + Vite build system
-- **Multi-tenancy**: Complete tenant-scoped validation rules and data isolation patterns
+- **Role-Based Access Control**: Complete RBAC system with roles (Admin, Teacher, Student, Parent, etc.) and permission-based authorization
 - **Health Monitoring**: Advanced health check endpoint at `/health` with Redis, database, cache, and queue checks
-- **Authentication**: Full Laravel Breeze-style auth system with email verification
+- **Authentication**: Full Laravel Breeze-style auth system with email verification and role-based registration
 
 ### Key Implementation Patterns (IMPLEMENTED)
-- **Advanced Form Validation**: `BaseFormRequest` and `TenantScopedFormRequest` classes with 30+ helper traits
-- **Multi-tenant Data Scoping**: `TenantExists` validation rule with automatic tenant scoping
+- **Advanced Form Validation**: `BaseFormRequest` class with 30+ helper traits for educational domain validation
+- **Role-Based Access Control**: Complete RBAC system with `Role`, `Permission` models and policy-based authorization
 - **Event-Driven Architecture**: `BaseEvent` abstract class with automatic metadata and structured event testing
-- **Custom Validation Rules**: `PhoneNumber`, `StrongPassword`, `AcademicGrade`, and `TenantExists` with flexible configuration
+- **Custom Validation Rules**: `PhoneNumber`, `StrongPassword`, `AcademicGrade` with flexible configuration
 - **Queue System**: Redis-based with Docker Sail, comprehensive testing scripts, and health monitoring
-- **Policy System**: `BaseTenantPolicy` with tenant-aware authorization patterns
+- **Policy System**: `BasePolicy` with role-aware authorization patterns
 - **Testing Infrastructure**: 49+ tests with specialized helper traits and factories
 
 ## Essential Development Workflows
@@ -65,10 +65,10 @@ php artisan queue:test --dispatch="Test"  # Dispatch test job
 
 ### Form Request Development Pattern
 ```bash
-# Create tenant-scoped form request (use actual patterns from codebase)
+# Create role-based form request (use actual patterns from codebase)
 php artisan make:request Student/StoreStudentRequest
 
-# Extend TenantScopedFormRequest and implement getTenantScopedRules()
+# Extend BaseFormRequest and implement rules() method
 # Use validation helpers: $this->getRulesFor('name_rules'), $this->getPhoneRule()
 # Test with: php artisan test tests/Feature/Student/
 ```
@@ -87,21 +87,21 @@ php artisan event:list
 
 ## Current Implementation Patterns (FULLY IMPLEMENTED)
 
-### Multi-Tenant Architecture (COMPLETE)
-The project implements a complete multi-tenant SaaS architecture:
+### Role-Based Access Control (COMPLETE)
+The project implements a complete RBAC system for educational management:
 
-**Tenant Model**: Full tenant management with fields: `id`, `name`, `slug`, `domain`, `subdomain`, `database_name`, `status`, `settings`, `trial_ends_at`
+**Role System**: Complete role management with permissions
 ```php
-// Tenant::create() with all fields implemented
-// Relationships: hasMany(User::class), users() method
-// Helper methods: isActive(), isOnTrial()
+// Role::create() with permissions assignment
+// Relationships: hasMany(User::class), belongsToMany(Permission::class)
+// Helper methods: givePermissionTo(), can(), hasRole()
 ```
 
-**User-Tenant Relationship**: Implemented with foreign key constraints
+**User-Role Relationship**: Implemented with Spatie Laravel Permission
 ```php
-// Users table includes tenant_id with proper foreign key constraint
-// User model: belongsTo(Tenant::class) relationship
-// Migration: tenant_id foreign key with cascade delete
+// Users table with role assignments via model_has_roles table
+// User model: uses HasRoles trait
+// Role-based middleware and policies
 ```
 
 ### Form Request Validation System (COMPLETE)
@@ -110,17 +110,10 @@ The project implements a complete multi-tenant SaaS architecture:
 // Use pre-defined patterns instead of manual rules
 'first_name' => $this->getRulesFor('name_rules'),
 'email' => $this->getRulesFor('email_rules', ['unique:users,email']),
-'tenant_id' => $this->getRulesFor('tenant_id_rules'),
+'role_id' => $this->getRulesFor('role_id_rules'),
 
 // Available patterns: email_rules, phone_rules, name_rules, password_rules, 
 // date_rules, optional_text_rules, required_text_rules, numeric_id_rules
-```
-
-**TenantScopedFormRequest**: Auto-applies tenant scoping to `exists` rules (`app/Http/Requests/TenantScopedFormRequest.php`)
-```php
-// Before: 'course_id' => ['required', 'exists:courses,id']
-// After: 'course_id' => ['required', 'exists:courses,id,tenant_id,5']
-protected function getTenantScopedRules(): array { /* implement rules */ }
 ```
 
 **HasValidationHelpers Trait**: 30+ specialized helpers for educational domain (`app/Http/Requests/Traits/HasValidationHelpers.php`)
@@ -134,11 +127,6 @@ $this->getImageUploadRules(1024)   // Image upload validation
 ```
 
 ### Custom Validation Rules (COMPLETE)
-- **TenantExists** (`app/Rules/TenantExists.php`): Validates resources exist within tenant scope
-```php
-new TenantExists('courses', 'id', $tenantId)
-// Usage: 'course_id' => ['required', 'integer', new TenantExists('courses')]
-```
 - **PhoneNumber** (`app/Rules/PhoneNumber.php`): International phone validation with country restrictions
 ```php
 PhoneNumber::withCountryCode(['US']) // Requires country code
@@ -178,18 +166,18 @@ $this->assertEventHasData(UserActionEvent::class, ['action' => 'delete']);
 ```
 
 ### Authorization & Policy System (COMPLETE)
-**BaseTenantPolicy** (`app/Policies/BaseTenantPolicy.php`): Tenant-aware authorization
+**BasePolicy** (`app/Policies/BasePolicy.php`): Role-aware authorization
 ```php
-// Automatically checks tenant ownership for all model operations
-// Methods: view, viewAny, create, update, delete with tenant scoping
-// Helper: belongsToTenant($model, $tenantId), userCanAccessTenant($tenantId)
+// Automatically checks user permissions for all model operations
+// Methods: view, viewAny, create, update, delete with role-based scoping
+// Helper: hasRole($role), can($permission), userCanAccess($resource)
 ```
 
 **Policy Testing** (`tests/Support/PolicyTestCase.php`): Specialized testing utilities
 ```php
-$this->createMockUser($tenantId);
-$this->createMockModel($tenantId);
-$this->testTenantScenarios($callback);
+$this->createMockUser($role);
+$this->createMockModel();
+$this->testRoleScenarios($callback);
 $this->assertPolicyPasses($callback);
 ```
 
@@ -231,9 +219,9 @@ php artisan queue:work redis --verbose
 
 ### Database Architecture (COMPLETE)
 - **Multi-Environment Support**: SQLite for local development, MySQL for Docker/production
-- **Complete Schema**: tenants, users (with tenant_id FK), sessions, cache, jobs, failed_jobs tables
-- **Foreign Key Constraints**: Proper tenant_id relationships with cascade delete
-- **Seeding System**: TenantSeeder with demo data, DatabaseSeeder integration
+- **Complete Schema**: users (with roles), sessions, cache, jobs, failed_jobs tables
+- **Role-Based Constraints**: Proper role and permission relationships with cascade delete
+- **Seeding System**: UserSeeder with demo data, DatabaseSeeder integration
 
 ### Testing Infrastructure (COMPLETE)
 **Test Structure** (49+ tests, 120+ assertions):
@@ -267,7 +255,7 @@ Event::dispatch($event);
 $this->assertEventDispatched(UserActionEvent::class);
 
 // Policy Testing
-$this->testTenantScenarios(function ($user, $model) {
+$this->testRoleScenarios(function ($user, $model) {
     return $this->policy->view($user, $model);
 });
 
@@ -393,7 +381,7 @@ For detailed feature specifications, search `github_issues.csv`:
 - Attendance: `grep "area:attendance" github_issues.csv` (8 issues)
 
 ### By Priority and Technology
-- Multi-tenancy: `grep "saas:multitenant" github_issues.csv` (13 issues)
+- Role-Based Access: `grep "rbac\|role" github_issues.csv` (13 issues)
 - Priority P1 (MVP): `grep "priority:P1" github_issues.csv` (82 issues)
 - Laravel Stack: `grep "stack:laravel12" github_issues.csv` (78 issues)
 - Database Related: `grep "db:mysql" github_issues.csv` (4 issues)
