@@ -5,14 +5,23 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Models\Student;
+use App\Services\StudentSearchService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class StudentController extends Controller
 {
+    protected $searchService;
+
+    public function __construct(StudentSearchService $searchService)
+    {
+        $this->searchService = $searchService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -21,35 +30,16 @@ class StudentController extends Controller
         // Check authorization
         Gate::authorize('viewAny', Student::class);
 
-        $query = Student::query();
+        // Use the search service for advanced filtering
+        $students = $this->searchService->search($request);
+        
+        // Get filter options for dropdowns
+        $filterOptions = $this->searchService->getFilterOptions();
+        
+        // Get search statistics
+        $searchStats = $this->searchService->getSearchStats($request);
 
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $query->searchByName($request->search)
-                ->orWhere('admission_number', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%');
-        }
-
-        // Filter by status
-        if ($request->has('status') && $request->status !== '') {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by grade level
-        if ($request->has('grade_level') && $request->grade_level !== '') {
-            $query->where('grade_level', $request->grade_level);
-        }
-
-        // Filter by class section
-        if ($request->has('class_section') && $request->class_section !== '') {
-            $query->where('class_section', $request->class_section);
-        }
-
-        $students = $query->orderBy('admission_number')
-            ->paginate(20)
-            ->withQueryString();
-
-        return view('students.index', compact('students'));
+        return view('students.index', compact('students', 'filterOptions', 'searchStats'));
     }
 
     /**
@@ -252,5 +242,55 @@ class StudentController extends Controller
             return redirect()->back()
                 ->with('error', 'Failed to perform bulk action. Please try again.');
         }
+    }
+
+    /**
+     * Export filtered students (Issue #35).
+     */
+    public function export(Request $request)
+    {
+        Gate::authorize('viewAny', Student::class);
+        
+        $exportData = $this->searchService->exportResults($request);
+        
+        return response($exportData['content'])
+            ->header('Content-Type', $exportData['headers']['Content-Type'])
+            ->header('Content-Disposition', 'attachment; filename="' . $exportData['filename'] . '"');
+    }
+
+    /**
+     * Get advanced search options for AJAX requests (Issue #35).
+     */
+    public function searchOptions(Request $request)
+    {
+        Gate::authorize('viewAny', Student::class);
+        
+        return response()->json([
+            'filters' => $this->searchService->getFilterOptions(),
+            'stats' => $this->searchService->getSearchStats($request)
+        ]);
+    }
+
+    /**
+     * Perform advanced search with AJAX support (Issue #35).
+     */
+    public function search(Request $request)
+    {
+        Gate::authorize('viewAny', Student::class);
+        
+        $students = $this->searchService->search($request);
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'students' => $students->items(),
+                'pagination' => [
+                    'current_page' => $students->currentPage(),
+                    'last_page' => $students->lastPage(),
+                    'total' => $students->total(),
+                ]
+            ]);
+        }
+        
+        return redirect()->route('students.index')->with('search_results', $students);
     }
 }

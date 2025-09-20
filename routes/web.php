@@ -119,6 +119,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/print', [StudentProfileController::class, 'print'])->name('print');
     });
 
+    // Student Search and Export Routes (Issue #35)
+    Route::prefix('students')->name('students.')->middleware(['verified'])->group(function () {
+        Route::get('/search', [StudentController::class, 'search'])->name('search');
+        Route::get('/search-options', [StudentController::class, 'searchOptions'])->name('search.options');
+        Route::get('/export', [StudentController::class, 'export'])->name('export');
+    });
+
     // Admin routes (requires admin role)
     Route::middleware(['role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
         // User impersonation routes
