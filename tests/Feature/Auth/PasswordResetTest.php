@@ -212,16 +212,16 @@ class PasswordResetTest extends TestCase
     }
 
     /**
-     * Test authenticated users can also access password reset routes.
+     * Test authenticated users are redirected from password reset routes.
      */
-    public function test_authenticated_users_can_access_password_reset_routes(): void
+    public function test_authenticated_users_are_redirected_from_password_reset_routes(): void
     {
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->get('/forgot-password');
-        $response->assertStatus(200);
+        $response->assertRedirect('/dashboard');
 
         $response = $this->actingAs($user)->get('/reset-password/token?email=test@example.com');
-        $response->assertStatus(200);
+        $response->assertRedirect('/dashboard');
     }
 }

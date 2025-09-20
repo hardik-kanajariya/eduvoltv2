@@ -11,15 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Register tenant resolver middleware as an alias
-        $middleware->alias([
-            'tenant' => \App\Http\Middleware\TenantResolverMiddleware::class,
-        ]);
-
-        // Don't apply tenant middleware globally for now - will apply selectively to routes that need it
-        // $middleware->web(append: [
-        //     \App\Http\Middleware\TenantResolverMiddleware::class,
-        // ]);
+        // Removed tenant middleware as we're no longer using multi-tenancy
+        // Application is now single-tenant (one school per installation)
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

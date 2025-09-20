@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Teacher extends BaseTenantModel
+class Teacher extends Model
 {
     use HasFactory;
 
@@ -23,7 +24,6 @@ class Teacher extends BaseTenantModel
         'qualification',
         'experience_years',
         'salary',
-        'tenant_id',
     ];
 
     protected $casts = [

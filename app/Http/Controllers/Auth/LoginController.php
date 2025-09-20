@@ -21,7 +21,7 @@ use Illuminate\View\View;
  * - Rate limiting for brute force protection
  * - Secure session management
  * - Remember me functionality
- * - Multi-tenant support
+ * - Role-based access control
  */
 class LoginController extends Controller
 {

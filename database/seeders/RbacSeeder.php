@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class RbacSeeder extends Seeder
 {
@@ -13,127 +13,106 @@ class RbacSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create all educational permissions
-        Permission::createEducationalPermissions();
+        // Create permissions
+        $this->createPermissions();
 
-        // Create system-level roles (non-tenant specific)
-        $this->createSystemRoles();
+        // Create roles
+        $this->createRoles();
 
-        // Create educational roles for tenants
-        $this->createEducationalRoles();
+        // Assign permissions to roles
+        $this->assignPermissions();
     }
 
     /**
-     * Create system-level roles.
+     * Create system permissions.
      */
-    private function createSystemRoles(): void
+    private function createPermissions(): void
     {
-        // Super Admin - can access everything across all tenants
-        $superAdmin = Role::updateOrCreate(
-            ['slug' => 'super-admin'],
-            [
-                'name' => 'Super Administrator',
-                'description' => 'Full system access across all tenants',
-                'is_system_role' => true,
-                'tenant_id' => null,
-            ]
-        );
+        $permissions = [
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.delete',
+            'students.view',
+            'students.create',
+            'students.update',
+            'students.delete',
+            'teachers.view',
+            'teachers.create',
+            'teachers.update',
+            'teachers.delete',
+            'grades.view',
+            'grades.create',
+            'grades.update',
+            'grades.delete',
+            'reports.view',
+            'reports.export',
+            'settings.view',
+            'settings.update',
+        ];
 
-        // Assign all permissions to super admin
-        $allPermissions = Permission::all();
-        $superAdmin->permissions()->sync($allPermissions->pluck('id'));
-    }
-
-    /**
-     * Create educational roles for tenants.
-     */
-    private function createEducationalRoles(): void
-    {
-        foreach (Role::EDUCATIONAL_ROLES as $slug => $name) {
-            $role = Role::updateOrCreate(
-                ['slug' => $slug],
-                [
-                    'name' => $name,
-                    'description' => "Educational role: {$name}",
-                    'is_system_role' => false,
-                    'tenant_id' => null, // Template role, will be copied per tenant
-                ]
-            );
-
-            // Assign default permissions based on role
-            $this->assignDefaultPermissions($role, $slug);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
         }
     }
 
     /**
-     * Assign default permissions to roles.
+     * Create educational roles.
      */
-    private function assignDefaultPermissions(Role $role, string $slug): void
+    private function createRoles(): void
     {
-        $permissions = [];
+        $roles = [
+            'super_admin' => 'Super Administrator',
+            'admin' => 'Administrator',
+            'teacher' => 'Teacher',
+            'student' => 'Student',
+            'parent' => 'Parent',
+        ];
 
-        switch ($slug) {
-            case 'owner':
-                // School owner has all permissions
-                $permissions = Permission::all()->pluck('id')->toArray();
-                break;
-
-            case 'admin':
-                // Admin has most permissions except user management
-                $permissions = Permission::whereNotIn('resource', ['roles'])->pluck('id')->toArray();
-                break;
-
-            case 'teacher':
-                // Teachers can manage students, attendance, and grades
-                $permissions = Permission::whereIn('resource', ['students', 'attendance', 'grades', 'classes'])
-                    ->whereIn('action', ['read', 'create', 'update'])
-                    ->pluck('id')->toArray();
-                break;
-
-            case 'parent':
-                // Parents can only view their children's information
-                $permissions = Permission::whereIn('resource', ['students', 'attendance', 'grades'])
-                    ->where('action', 'read')
-                    ->pluck('id')->toArray();
-                break;
-
-            case 'student':
-                // Students can view their own information
-                $permissions = Permission::whereIn('resource', ['attendance', 'grades'])
-                    ->where('action', 'read')
-                    ->pluck('id')->toArray();
-                break;
-
-            case 'accountant':
-                // Accountants manage fees and related reports
-                $permissions = Permission::whereIn('resource', ['fees', 'students'])
-                    ->pluck('id')->toArray();
-                break;
-
-            case 'librarian':
-                // Librarians manage library resources (to be implemented)
-                $permissions = Permission::whereIn('resource', ['students'])
-                    ->where('action', 'read')
-                    ->pluck('id')->toArray();
-                break;
-
-            case 'warden':
-                // Wardens manage hostel/dormitory (to be implemented)
-                $permissions = Permission::whereIn('resource', ['students'])
-                    ->whereIn('action', ['read', 'update'])
-                    ->pluck('id')->toArray();
-                break;
-
-            case 'driver':
-                // Drivers manage transportation (to be implemented)
-                $permissions = Permission::whereIn('resource', ['students'])
-                    ->where('action', 'read')
-                    ->pluck('id')->toArray();
-                break;
+        foreach ($roles as $name => $displayName) {
+            Role::firstOrCreate(['name' => $name]);
         }
+    }
 
-        if (!empty($permissions)) {
-            $role->permissions()->sync($permissions);
-        }
+    /**
+     * Assign permissions to roles.
+     */
+    private function assignPermissions(): void
+    {
+        // Super Admin gets all permissions
+        $superAdmin = Role::where('name', 'super_admin')->first();
+        $superAdmin->givePermissionTo(Permission::all());
+
+        // Admin gets most permissions
+        $admin = Role::where('name', 'admin')->first();
+        $admin->givePermissionTo([
+            'users.view',
+            'users.create',
+            'users.update',
+            'students.view',
+            'students.create',
+            'students.update',
+            'students.delete',
+            'teachers.view',
+            'teachers.create',
+            'teachers.update',
+            'teachers.delete',
+            'grades.view',
+            'grades.create',
+            'grades.update',
+            'grades.delete',
+            'reports.view',
+            'reports.export',
+        ]);
+
+        // Teacher gets limited permissions
+        $teacher = Role::where('name', 'teacher')->first();
+        $teacher->givePermissionTo([
+            'students.view',
+            'grades.view',
+            'grades.create',
+            'grades.update',
+            'reports.view',
+        ]);
     }
 }

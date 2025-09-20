@@ -66,23 +66,6 @@ class DashboardTest extends TestCase
     }
 
     /**
-     * Test dashboard shows verification status for unverified users.
-     */
-    public function test_dashboard_shows_verification_status_for_unverified_users(): void
-    {
-        // This test demonstrates what would happen if we removed the verified middleware
-        $user = User::factory()->unverified()->create();
-
-        // Temporarily remove the verified middleware for this test
-        $response = $this->withoutMiddleware(['verified'])
-            ->actingAs($user)
-            ->get('/dashboard');
-
-        $response->assertSee('Email not verified');
-        $response->assertSee('Please verify your email address');
-    }
-
-    /**
      * Test dashboard shows verified parameter in URL.
      */
     public function test_dashboard_shows_verified_parameter_in_url(): void

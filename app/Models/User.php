@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Traits\HasTwoFactorAuthentication;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -32,7 +31,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'tenant_id',
     ];
 
     /**
@@ -63,44 +61,28 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Get the tenant that owns the user.
+     * Assign a role to the user using Spatie.
      */
-    public function tenant(): BelongsTo
+    public function assignUserRole(string $role): self
     {
-        return $this->belongsTo(Tenant::class);
-    }
-
-    /**
-     * Get the team for Spatie permissions (tenant context).
-     */
-    public function getTeamId(): ?int
-    {
-        return $this->tenant_id;
-    }
-
-    /**
-     * Assign a role to the user within a tenant using Spatie.
-     */
-    public function assignRoleInTenant(string $role, int $tenantId): self
-    {
-        $this->assignRole($role, $tenantId);
+        $this->assignRole($role);
 
         return $this;
     }
 
     /**
-     * Check if user has role in specific tenant using Spatie.
+     * Check if user has specific role using Spatie.
      */
-    public function hasRoleInTenant(string $role, int $tenantId): bool
+    public function hasUserRole(string $role): bool
     {
-        return $this->hasRole($role, $tenantId);
+        return $this->hasRole($role);
     }
 
     /**
-     * Check if user has permission in specific tenant using Spatie.
+     * Check if user has specific permission using Spatie.
      */
-    public function hasPermissionInTenant(string $permission, int $tenantId): bool
+    public function hasUserPermission(string $permission): bool
     {
-        return $this->hasPermissionTo($permission, $tenantId);
+        return $this->hasPermissionTo($permission);
     }
 }

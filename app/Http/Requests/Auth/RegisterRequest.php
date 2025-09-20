@@ -37,7 +37,6 @@ class RegisterRequest extends BaseFormRequest
             'phone' => $this->getRulesFor('phone_rules'),
             'date_of_birth' => ['required', 'date', 'before:today', 'after:1900-01-01'],
             'terms_accepted' => ['required', 'accepted'],
-            'tenant_id' => ['required', 'integer', 'exists:tenants,id'],
         ];
     }
 

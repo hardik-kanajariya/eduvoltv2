@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Student extends BaseTenantModel
+class Student extends Model
 {
     use HasFactory;
 
@@ -23,7 +24,6 @@ class Student extends BaseTenantModel
         'parent_name',
         'parent_phone',
         'parent_email',
-        'tenant_id',
     ];
 
     protected $casts = [

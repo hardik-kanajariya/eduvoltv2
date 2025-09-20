@@ -38,7 +38,7 @@ class RegisterTest extends TestCase
             'password' => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
             'terms_accepted' => true,
-            'tenant_id' => 1,
+
         ]);
 
         $this->assertAuthenticated();
@@ -65,7 +65,7 @@ class RegisterTest extends TestCase
             'password' => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
             'terms_accepted' => true,
-            'tenant_id' => 1,
+
         ]);
 
         $response->assertSessionHasErrors(['email']);
@@ -86,7 +86,7 @@ class RegisterTest extends TestCase
             'password' => 'weak',
             'password_confirmation' => 'weak',
             'terms_accepted' => true,
-            'tenant_id' => 1,
+
         ]);
 
         $response->assertSessionHasErrors(['password']);
@@ -107,7 +107,7 @@ class RegisterTest extends TestCase
             'password' => 'SecurePass123!',
             'password_confirmation' => 'DifferentPass123!',
             'terms_accepted' => true,
-            'tenant_id' => 1,
+
         ]);
 
         $response->assertSessionHasErrors(['password']);
@@ -128,7 +128,7 @@ class RegisterTest extends TestCase
             'password' => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
             'terms_accepted' => false,
-            'tenant_id' => 1,
+
         ]);
 
         $response->assertSessionHasErrors(['terms_accepted']);
@@ -152,7 +152,7 @@ class RegisterTest extends TestCase
             'password' => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
             'terms_accepted' => true,
-            'tenant_id' => 1,
+
         ]);
 
         $response->assertSessionHasErrors(['email']);
@@ -173,7 +173,7 @@ class RegisterTest extends TestCase
             'password' => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
             'terms_accepted' => true,
-            'tenant_id' => 1,
+
         ]);
 
         $response->assertSessionHasErrors(['phone']);
@@ -194,7 +194,7 @@ class RegisterTest extends TestCase
             'password' => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
             'terms_accepted' => true,
-            'tenant_id' => 1,
+
         ]);
 
         $response->assertSessionHasErrors(['date_of_birth']);
@@ -215,7 +215,7 @@ class RegisterTest extends TestCase
             'password' => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
             'terms_accepted' => true,
-            'tenant_id' => 1,
+
         ]);
 
         $this->assertAuthenticated();

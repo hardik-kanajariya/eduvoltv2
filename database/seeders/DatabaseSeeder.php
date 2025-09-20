@@ -14,18 +14,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            TenantSeeder::class,
+            RbacSeeder::class,
             DemoAccountsSeeder::class,
         ]);
-
-        // User::factory(10)->create();
 
         // Only create test user if demo accounts are not enabled
         if (!config('app.demo_accounts_enabled', false)) {
             User::factory()->create([
                 'name' => 'Test User',
                 'email' => 'test@example.com',
-                'tenant_id' => 1, // Assign to the first tenant
             ]);
         }
     }

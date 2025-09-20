@@ -57,9 +57,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/two-factor/recovery-codes', [TwoFactorController::class, 'recoveryCodes'])->name('two-factor.recovery-codes');
     Route::get('/two-factor/qr-code', [TwoFactorController::class, 'qrCode'])->name('two-factor.qr-code');
 
-    // Dashboard route (requires email verification and tenant)
+    // Dashboard route (requires email verification)
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware(['verified', 'tenant'])
+        ->middleware(['verified'])
         ->name('dashboard');
 });
 
