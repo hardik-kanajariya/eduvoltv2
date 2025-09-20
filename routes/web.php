@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\StudentRegistrationController;
@@ -165,6 +166,27 @@ Route::middleware('auth')->group(function () {
         Route::post('/download', [DocumentController::class, 'bulkDownload'])->name('download');
         Route::get('/download/{filename}', [DocumentController::class, 'downloadBulkFile'])->name('download.file');
         Route::get('/stats', [DocumentController::class, 'bulkStats'])->name('stats');
+    });
+
+    // Report Management Routes (Issue #38)
+    Route::prefix('reports')->name('reports.')->middleware(['verified'])->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::post('/', [ReportController::class, 'store'])->name('store');
+        Route::get('/templates', [ReportController::class, 'templates'])->name('templates');
+        Route::get('/statistics', [ReportController::class, 'statistics'])->name('statistics');
+        Route::post('/bulk-export', [ReportController::class, 'bulkExport'])->name('bulk-export');
+        
+        // Specialized report endpoints
+        Route::get('/attendance', [ReportController::class, 'attendanceReports'])->name('attendance');
+        Route::get('/academic', [ReportController::class, 'academicReports'])->name('academic');
+        
+        // Individual report routes
+        Route::get('/{report}', [ReportController::class, 'show'])->name('show');
+        Route::put('/{report}', [ReportController::class, 'update'])->name('update');
+        Route::delete('/{report}', [ReportController::class, 'destroy'])->name('destroy');
+        Route::post('/{report}/generate', [ReportController::class, 'generate'])->name('generate');
+        Route::post('/{report}/export', [ReportController::class, 'export'])->name('export');
+        Route::get('/{report}/download', [ReportController::class, 'download'])->name('download');
     });
 
     // Admin routes (requires admin role)
