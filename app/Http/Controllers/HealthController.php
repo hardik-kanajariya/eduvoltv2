@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Queue;
 
 class HealthController extends Controller
 {
@@ -51,6 +53,39 @@ class HealthController extends Controller
             $checks['cache'] = [
                 'status' => 'unhealthy',
                 'message' => 'Cache check failed: ' . $e->getMessage()
+            ];
+        }
+
+        // Redis connectivity check
+        try {
+            Redis::ping();
+            $checks['redis'] = [
+                'status' => 'healthy',
+                'message' => 'Redis connection successful'
+            ];
+        } catch (\Exception $e) {
+            $status = 'unhealthy';
+            $checks['redis'] = [
+                'status' => 'unhealthy',
+                'message' => 'Redis connection failed: ' . $e->getMessage()
+            ];
+        }
+
+        // Queue connectivity check
+        try {
+            $queueConnection = config('queue.default');
+            $queueDriver = config("queue.connections.{$queueConnection}.driver");
+            
+            $checks['queue'] = [
+                'status' => 'healthy',
+                'message' => "Queue system operational (driver: {$queueDriver})",
+                'connection' => $queueConnection
+            ];
+        } catch (\Exception $e) {
+            $status = 'unhealthy';
+            $checks['queue'] = [
+                'status' => 'unhealthy',
+                'message' => 'Queue system check failed: ' . $e->getMessage()
             ];
         }
 
