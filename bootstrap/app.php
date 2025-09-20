@@ -16,10 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => \App\Http\Middleware\TenantResolverMiddleware::class,
         ]);
 
-        // Apply tenant middleware to web routes by default
-        $middleware->web(append: [
-            \App\Http\Middleware\TenantResolverMiddleware::class,
-        ]);
+        // Don't apply tenant middleware globally for now - will apply selectively to routes that need it
+        // $middleware->web(append: [
+        //     \App\Http\Middleware\TenantResolverMiddleware::class,
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
