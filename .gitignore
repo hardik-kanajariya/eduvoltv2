@@ -36,3 +36,4 @@ phpstan.neon
 .phpstan.result.cache
 /resources/views/vendor
 /docker
+github_issues.csv

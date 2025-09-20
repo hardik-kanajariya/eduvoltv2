@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'EduVoltV2') }} - Modern Educational SaaS Platform</title>
-    <meta name="description" content="Transform your educational institution with EduVoltV2 - comprehensive student management, attendance tracking, and learning analytics.">
+    <title>{{ config('app.name', 'EduVoltV2') }} - School Management System</title>
+    <meta name="description" content="Transform your school with EduVoltV2 - comprehensive student management, attendance tracking, and learning analytics for individual educational institutions.">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -54,7 +54,6 @@
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-8">
                         <a href="#features" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">Features</a>
-                        <a href="#pricing" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">Pricing</a>
                         <a href="#about" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">About</a>
                         <a href="{{ route('health.check') }}" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">Status</a>
                     </div>
@@ -68,7 +67,7 @@
                     @else
                     <a href="{{ route('login') }}" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">Sign In</a>
                     @if (Route::has('register'))
-                    <a href="{{ route('register') }}" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">Get Started</a>
+                    <a href="{{ route('register') }}" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">Register</a>
                     @endif
                     @endauth
                     @endif
@@ -82,11 +81,11 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-                    Transform Education with
+                    Transform Your School with
                     <span class="text-primary-600">EduVoltV2</span>
                 </h1>
                 <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                    The comprehensive SaaS platform that empowers educational institutions with modern student management,
+                    The comprehensive school management system that empowers your educational institution with modern student management,
                     smart attendance tracking, and powerful learning analytics.
                 </p>
 
@@ -94,7 +93,7 @@
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
                     @if (Route::has('register'))
                     <a href="{{ route('register') }}" class="bg-primary-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
-                        Start Free Trial
+                        Get Started
                     </a>
                     @endif
                     <a href="#features" class="border-2 border-primary-600 text-primary-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-600 hover:text-white transition-all duration-200">
@@ -105,20 +104,20 @@
                 <!-- Trust Indicators -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                     <div>
-                        <div class="text-3xl font-bold text-primary-600">500+</div>
-                        <div class="text-gray-600">Schools</div>
+                        <div class="text-3xl font-bold text-primary-600">All-in-One</div>
+                        <div class="text-gray-600">Solution</div>
                     </div>
                     <div>
-                        <div class="text-3xl font-bold text-primary-600">50K+</div>
-                        <div class="text-gray-600">Students</div>
+                        <div class="text-3xl font-bold text-primary-600">Easy</div>
+                        <div class="text-gray-600">Setup</div>
                     </div>
                     <div>
-                        <div class="text-3xl font-bold text-primary-600">99.9%</div>
-                        <div class="text-gray-600">Uptime</div>
+                        <div class="text-3xl font-bold text-primary-600">Secure</div>
+                        <div class="text-gray-600">Data</div>
                     </div>
                     <div>
                         <div class="text-3xl font-bold text-primary-600">24/7</div>
-                        <div class="text-gray-600">Support</div>
+                        <div class="text-gray-600">Access</div>
                     </div>
                 </div>
             </div>
@@ -130,10 +129,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                    Everything You Need to Manage Education
+                    Everything You Need to Manage Your School
                 </h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Comprehensive tools designed specifically for modern educational institutions
+                    Comprehensive tools designed specifically for educational institutions
                 </p>
             </div>
 
@@ -237,171 +236,56 @@
         </div>
     </section>
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="py-20 bg-gray-50">
+    <!-- Benefits Section -->
+    <section id="benefits" class="py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                    Choose Your Plan
+                    Why Schools Choose EduVoltV2
                 </h2>
                 <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Flexible pricing plans designed to grow with your institution
+                    Discover the benefits of modern school management
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                <!-- Starter Plan -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Starter</h3>
-                        <p class="text-gray-600 mb-4">Perfect for small schools</p>
-                        <div class="mb-4">
-                            <span class="text-4xl font-bold text-gray-900">$29</span>
-                            <span class="text-gray-600">/month</span>
-                        </div>
-                        <p class="text-sm text-gray-500">Up to 100 students</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Benefit 1 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
                     </div>
-
-                    <ul class="space-y-4 mb-8">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Student Management
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Basic Attendance Tracking
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Grade Management
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Email Support
-                        </li>
-                    </ul>
-
-                    <button class="w-full bg-gray-900 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-                        Start Free Trial
-                    </button>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Increased Efficiency</h3>
+                    <p class="text-gray-600">Streamline administrative tasks and reduce paperwork by up to 80% with automated processes.</p>
                 </div>
 
-                <!-- Professional Plan -->
-                <div class="bg-primary-600 rounded-2xl shadow-xl p-8 border-2 border-primary-500 relative">
-                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                        <span class="bg-primary-500 text-white px-4 py-1 rounded-full text-sm font-semibold">Most Popular</span>
+                <!-- Benefit 2 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                     </div>
-
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-bold text-white mb-2">Professional</h3>
-                        <p class="text-primary-100 mb-4">For growing institutions</p>
-                        <div class="mb-4">
-                            <span class="text-4xl font-bold text-white">$79</span>
-                            <span class="text-primary-100">/month</span>
-                        </div>
-                        <p class="text-sm text-primary-100">Up to 500 students</p>
-                    </div>
-
-                    <ul class="space-y-4 mb-8">
-                        <li class="flex items-center text-white">
-                            <svg class="w-5 h-5 text-primary-200 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Everything in Starter
-                        </li>
-                        <li class="flex items-center text-white">
-                            <svg class="w-5 h-5 text-primary-200 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Advanced Timetable Management
-                        </li>
-                        <li class="flex items-center text-white">
-                            <svg class="w-5 h-5 text-primary-200 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Fee Management System
-                        </li>
-                        <li class="flex items-center text-white">
-                            <svg class="w-5 h-5 text-primary-200 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Analytics & Reports
-                        </li>
-                        <li class="flex items-center text-white">
-                            <svg class="w-5 h-5 text-primary-200 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Priority Support
-                        </li>
-                    </ul>
-
-                    <button class="w-full bg-white text-primary-600 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
-                        Start Free Trial
-                    </button>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Easy Implementation</h3>
+                    <p class="text-gray-600">Get up and running quickly with our user-friendly interface and comprehensive setup support.</p>
                 </div>
 
-                <!-- Enterprise Plan -->
-                <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                    <div class="text-center mb-8">
-                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Enterprise</h3>
-                        <p class="text-gray-600 mb-4">For large institutions</p>
-                        <div class="mb-4">
-                            <span class="text-4xl font-bold text-gray-900">$199</span>
-                            <span class="text-gray-600">/month</span>
-                        </div>
-                        <p class="text-sm text-gray-500">Unlimited students</p>
+                <!-- Benefit 3 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
                     </div>
-
-                    <ul class="space-y-4 mb-8">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Everything in Professional
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Custom Integrations
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Advanced Security Features
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Dedicated Account Manager
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            24/7 Phone Support
-                        </li>
-                    </ul>
-
-                    <button class="w-full bg-gray-900 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-                        Contact Sales
-                    </button>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Secure & Reliable</h3>
+                    <p class="text-gray-600">Your data is protected with enterprise-grade security and automated daily backups.</p>
                 </div>
             </div>
 
             <div class="text-center mt-12">
-                <p class="text-gray-600 mb-4">All plans include a 14-day free trial. No credit card required.</p>
-                <p class="text-sm text-gray-500">Questions about our pricing? <a href="#" class="text-primary-600 hover:text-primary-700">Contact our sales team</a></p>
+                <p class="text-gray-600 mb-4">Ready to transform your school management?</p>
+                <a href="{{ route('register') }}" class="bg-primary-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-colors">Get Started Today</a>
             </div>
         </div>
     </section>
@@ -534,17 +418,17 @@
                 Ready to Transform Your Institution?
             </h2>
             <p class="text-xl text-primary-100 mb-8">
-                Join thousands of educational institutions already using EduVoltV2 to streamline their operations and improve student outcomes.
+                Transform your school management with our comprehensive solution designed specifically for educational institutions.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ route('register') }}" class="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-colors">
-                    Start Your Free Trial
+                    Get Started Today
                 </a>
                 <a href="#" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-primary-600 transition-colors">
-                    Schedule a Demo
+                    Learn More
                 </a>
             </div>
-            <p class="text-primary-200 text-sm mt-6">No credit card required • 14-day free trial • Setup in minutes</p>
+            <p class="text-primary-200 text-sm mt-6">Easy setup • Comprehensive training • Dedicated support</p>
         </div>
     </section>
 
@@ -588,7 +472,7 @@
                     <h3 class="text-lg font-semibold mb-4">Product</h3>
                     <ul class="space-y-2">
                         <li><a href="#features" class="text-gray-400 hover:text-white transition-colors">Features</a></li>
-                        <li><a href="#pricing" class="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Solutions</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Integrations</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API</a></li>
                     </ul>
