@@ -77,7 +77,7 @@ Route::middleware('auth')->group(function () {
     // Student Management Routes
     Route::resource('students', StudentController::class)
         ->middleware(['verified']);
-    
+
     // Additional student routes
     Route::post('/students/{student}/restore', [StudentController::class, 'restore'])
         ->name('students.restore')

@@ -26,8 +26,8 @@ class StudentController extends Controller
         // Search functionality
         if ($request->has('search') && $request->search) {
             $query->searchByName($request->search)
-                  ->orWhere('admission_number', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
+                ->orWhere('admission_number', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%');
         }
 
         // Filter by status
@@ -46,8 +46,8 @@ class StudentController extends Controller
         }
 
         $students = $query->orderBy('admission_number')
-                         ->paginate(20)
-                         ->withQueryString();
+            ->paginate(20)
+            ->withQueryString();
 
         return view('students.index', compact('students'));
     }
@@ -85,11 +85,11 @@ class StudentController extends Controller
             $student = Student::create($validated);
 
             return redirect()->route('students.show', $student)
-                           ->with('success', 'Student created successfully.');
+                ->with('success', 'Student created successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Failed to create student. Please try again.');
+                ->withInput()
+                ->with('error', 'Failed to create student. Please try again.');
         }
     }
 
@@ -146,11 +146,11 @@ class StudentController extends Controller
             $student->update($validated);
 
             return redirect()->route('students.show', $student)
-                           ->with('success', 'Student updated successfully.');
+                ->with('success', 'Student updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Failed to update student. Please try again.');
+                ->withInput()
+                ->with('error', 'Failed to update student. Please try again.');
         }
     }
 
@@ -165,10 +165,10 @@ class StudentController extends Controller
             $student->delete();
 
             return redirect()->route('students.index')
-                           ->with('success', 'Student deleted successfully.');
+                ->with('success', 'Student deleted successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
-                           ->with('error', 'Failed to delete student. Please try again.');
+                ->with('error', 'Failed to delete student. Please try again.');
         }
     }
 
@@ -183,10 +183,10 @@ class StudentController extends Controller
             $student->restore();
 
             return redirect()->route('students.show', $student)
-                           ->with('success', 'Student restored successfully.');
+                ->with('success', 'Student restored successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
-                           ->with('error', 'Failed to restore student. Please try again.');
+                ->with('error', 'Failed to restore student. Please try again.');
         }
     }
 
@@ -206,10 +206,10 @@ class StudentController extends Controller
             $student->forceDelete();
 
             return redirect()->route('students.index')
-                           ->with('success', 'Student permanently deleted.');
+                ->with('success', 'Student permanently deleted.');
         } catch (\Exception $e) {
             return redirect()->back()
-                           ->with('error', 'Failed to permanently delete student. Please try again.');
+                ->with('error', 'Failed to permanently delete student. Please try again.');
         }
     }
 
@@ -247,10 +247,10 @@ class StudentController extends Controller
             }
 
             return redirect()->route('students.index')
-                           ->with('success', $message);
+                ->with('success', $message);
         } catch (\Exception $e) {
             return redirect()->back()
-                           ->with('error', 'Failed to perform bulk action. Please try again.');
+                ->with('error', 'Failed to perform bulk action. Please try again.');
         }
     }
 }

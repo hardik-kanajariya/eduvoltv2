@@ -78,7 +78,7 @@ class Student extends Model
     // {
     //     return $this->hasMany(Enrollment::class);
     // }
-    
+
     // public function attendances(): HasMany
     // {
     //     return $this->hasMany(Attendance::class);
@@ -115,9 +115,9 @@ class Student extends Model
     {
         return $query->where(function ($q) use ($search) {
             $q->where('first_name', 'like', "%{$search}%")
-              ->orWhere('last_name', 'like', "%{$search}%")
-              ->orWhere('admission_number', 'like', "%{$search}%")
-              ->orWhere('student_id', 'like', "%{$search}%");
+                ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhere('admission_number', 'like', "%{$search}%")
+                ->orWhere('student_id', 'like', "%{$search}%");
         });
     }
 }

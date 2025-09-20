@@ -78,7 +78,7 @@ class StudentRegistrationController extends Controller
         // Ensure step 1 is completed
         if (!session('registration_data.step1')) {
             return redirect()->route('students.registration.step1')
-                           ->with('error', 'Please complete step 1 first.');
+                ->with('error', 'Please complete step 1 first.');
         }
 
         return view('students.registration.step2', [
@@ -123,7 +123,7 @@ class StudentRegistrationController extends Controller
         // Ensure previous steps are completed
         if (!session('registration_data.step1') || !session('registration_data.step2')) {
             return redirect()->route('students.registration.step1')
-                           ->with('error', 'Please complete all previous steps first.');
+                ->with('error', 'Please complete all previous steps first.');
         }
 
         return view('students.registration.step3', [
@@ -171,7 +171,7 @@ class StudentRegistrationController extends Controller
         // Ensure previous steps are completed
         if (!session('registration_data.step1') || !session('registration_data.step2') || !session('registration_data.step3')) {
             return redirect()->route('students.registration.step1')
-                           ->with('error', 'Please complete all previous steps first.');
+                ->with('error', 'Please complete all previous steps first.');
         }
 
         return view('students.registration.step4', [
@@ -251,13 +251,13 @@ class StudentRegistrationController extends Controller
             session()->forget('registration_data');
 
             return redirect()->route('students.show', $student)
-                           ->with('success', 'Student registration completed successfully!');
+                ->with('success', 'Student registration completed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'Registration failed: ' . $e->getMessage());
+                ->withInput()
+                ->with('error', 'Registration failed: ' . $e->getMessage());
         }
     }
 
@@ -273,7 +273,7 @@ class StudentRegistrationController extends Controller
         // Ensure all steps are completed
         if (!isset($registrationData['step1'], $registrationData['step2'], $registrationData['step3'])) {
             return redirect()->route('students.registration.step1')
-                           ->with('error', 'Please complete all registration steps first.');
+                ->with('error', 'Please complete all registration steps first.');
         }
 
         return view('students.registration.review', [
@@ -289,6 +289,6 @@ class StudentRegistrationController extends Controller
         session()->forget('registration_data');
 
         return redirect()->route('students.registration.step1')
-                       ->with('info', 'Registration data cleared. You can start the registration process again.');
+            ->with('info', 'Registration data cleared. You can start the registration process again.');
     }
 }

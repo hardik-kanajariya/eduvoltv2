@@ -32,7 +32,7 @@ class StoreStudentRequest extends BaseFormRequest
             'address' => ['required', 'string', 'max:500'],
             'blood_group' => ['nullable', 'string', 'in:A+,A-,B+,B-,AB+,AB-,O+,O-'],
             'photo' => $this->getImageUploadRules(2048), // 2MB max
-            
+
             // Academic Information
             'grade_level' => ['required', 'string', 'max:10'],
             'class_section' => ['nullable', 'string', 'max:10'],
@@ -40,18 +40,18 @@ class StoreStudentRequest extends BaseFormRequest
             'academic_year' => $this->getAcademicYearRules(),
             'previous_school' => ['nullable', 'string', 'max:255'],
             'status' => ['required', 'in:active,inactive,graduated,transferred,suspended'],
-            
+
             // Parent/Guardian Information
             'parent_name' => $this->getRulesFor('name_rules'),
             'parent_phone' => ['required', new PhoneNumber()],
             'parent_email' => $this->getRulesFor('email_rules'),
             'parent_relationship' => ['required', 'string', 'in:father,mother,guardian,other'],
-            
+
             // Emergency Contact
             'emergency_contact_name' => $this->getRulesFor('name_rules'),
             'emergency_contact_phone' => ['required', new PhoneNumber()],
             'emergency_contact_relationship' => ['required', 'string', 'max:50'],
-            
+
             // Medical Information (JSON fields)
             'medical_conditions' => ['nullable', 'array'],
             'medical_conditions.*' => ['string', 'max:255'],
