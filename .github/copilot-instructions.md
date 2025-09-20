@@ -6,7 +6,7 @@ EduVoltV2 is a Laravel 12-based multi-tenant SaaS educational platform designed 
 
 ## Current Repository State
 
-**CRITICAL**: This repository is currently in the planning phase. The `github_issues.csv` file contains 4000+ detailed specifications for the platform but **NO SOURCE CODE EXISTS YET**. 
+**CRITICAL**: This repository is currently in the planning phase. The `github_issues.csv` file contains 4,061+ detailed specifications for the platform but **NO SOURCE CODE EXISTS YET**. 
 
 When working in this repository:
 - Reference `github_issues.csv` for detailed feature specifications and requirements
