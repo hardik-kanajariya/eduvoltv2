@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentRegistrationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -87,6 +88,21 @@ Route::middleware('auth')->group(function () {
     Route::post('/students/bulk-action', [StudentController::class, 'bulkAction'])
         ->name('students.bulk-action')
         ->middleware(['verified']);
+
+    // Student Registration (Multi-step) Routes
+    Route::prefix('students/registration')->name('students.registration.')->middleware(['verified'])->group(function () {
+        Route::get('/', [StudentRegistrationController::class, 'index'])->name('index');
+        Route::get('/step1', [StudentRegistrationController::class, 'step1'])->name('step1');
+        Route::post('/step1', [StudentRegistrationController::class, 'processStep1'])->name('process-step1');
+        Route::get('/step2', [StudentRegistrationController::class, 'step2'])->name('step2');
+        Route::post('/step2', [StudentRegistrationController::class, 'processStep2'])->name('process-step2');
+        Route::get('/step3', [StudentRegistrationController::class, 'step3'])->name('step3');
+        Route::post('/step3', [StudentRegistrationController::class, 'processStep3'])->name('process-step3');
+        Route::get('/step4', [StudentRegistrationController::class, 'step4'])->name('step4');
+        Route::post('/step4', [StudentRegistrationController::class, 'processStep4'])->name('process-step4');
+        Route::get('/review', [StudentRegistrationController::class, 'review'])->name('review');
+        Route::post('/restart', [StudentRegistrationController::class, 'restart'])->name('restart');
+    });
 
     // Admin routes (requires admin role)
     Route::middleware(['role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
