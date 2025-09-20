@@ -82,13 +82,6 @@
         </a>
         @endif
     </div>
-
-    <div class="text-center mt-4">
-        <span style="color: #6b7280; font-size: 0.875rem;">Don't have an account?</span>
-        <a class="link" href="{{ route('register') }}">
-            Sign up
-        </a>
-    </div>
 </form>
 
 @if($demoAccountsEnabled && count($demoAccounts) > 0)

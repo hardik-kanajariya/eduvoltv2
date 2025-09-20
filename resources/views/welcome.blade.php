@@ -65,10 +65,7 @@
                     @auth
                     <a href="{{ url('/dashboard') }}" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">Dashboard</a>
                     @else
-                    <a href="{{ route('login') }}" class="text-gray-600 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors">Sign In</a>
-                    @if (Route::has('register'))
-                    <a href="{{ route('register') }}" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">Register</a>
-                    @endif
+                    <a href="{{ route('login') }}" class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">Login</a>
                     @endauth
                     @endif
                 </div>
@@ -91,11 +88,9 @@
 
                 <!-- CTA Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-                    @if (Route::has('register'))
-                    <a href="{{ route('register') }}" class="bg-primary-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
-                        Get Started
+                    <a href="{{ route('login') }}" class="bg-primary-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        Login to Dashboard
                     </a>
-                    @endif
                     <a href="#features" class="border-2 border-primary-600 text-primary-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-600 hover:text-white transition-all duration-200">
                         See Features
                     </a>
@@ -284,8 +279,8 @@
             </div>
 
             <div class="text-center mt-12">
-                <p class="text-gray-600 mb-4">Ready to transform your school management?</p>
-                <a href="{{ route('register') }}" class="bg-primary-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-colors">Get Started Today</a>
+                <p class="text-gray-600 mb-4">Ready to access your school management system?</p>
+                <a href="{{ route('login') }}" class="bg-primary-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-colors">Login to Dashboard</a>
             </div>
         </div>
     </section>
@@ -415,20 +410,20 @@
     <section class="py-20 bg-primary-600">
         <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
-                Ready to Transform Your Institution?
+                Access Your School Management System
             </h2>
             <p class="text-xl text-primary-100 mb-8">
-                Transform your school management with our comprehensive solution designed specifically for educational institutions.
+                Login to your comprehensive school management solution designed specifically for educational institutions.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ route('register') }}" class="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-colors">
-                    Get Started Today
+                <a href="{{ route('login') }}" class="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-50 transition-colors">
+                    Login to Dashboard
                 </a>
                 <a href="#" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-primary-600 transition-colors">
                     Learn More
                 </a>
             </div>
-            <p class="text-primary-200 text-sm mt-6">Easy setup • Comprehensive training • Dedicated support</p>
+            <p class="text-primary-200 text-sm mt-6">Secure access • Role-based permissions • Dedicated support</p>
         </div>
     </section>
 
