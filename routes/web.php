@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -71,6 +72,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware(['verified'])
         ->name('dashboard');
+
+    // Student Management Routes
+    Route::resource('students', StudentController::class)
+        ->middleware(['verified']);
+    
+    // Additional student routes
+    Route::post('/students/{student}/restore', [StudentController::class, 'restore'])
+        ->name('students.restore')
+        ->middleware(['verified']);
+    Route::delete('/students/{student}/force-delete', [StudentController::class, 'forceDelete'])
+        ->name('students.force-delete')
+        ->middleware(['verified']);
+    Route::post('/students/bulk-action', [StudentController::class, 'bulkAction'])
+        ->name('students.bulk-action')
+        ->middleware(['verified']);
 
     // Admin routes (requires admin role)
     Route::middleware(['role:admin|super_admin'])->prefix('admin')->name('admin.')->group(function () {
