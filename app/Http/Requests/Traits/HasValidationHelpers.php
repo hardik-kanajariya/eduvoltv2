@@ -205,6 +205,7 @@ trait HasValidationHelpers
     protected function getTenantExistsRule(string $table, string $column = 'id'): TenantExists
     {
         $tenantId = method_exists($this, 'getCurrentTenantId') ? $this->getCurrentTenantId() : null;
+
         return new TenantExists($table, $column, $tenantId);
     }
 
@@ -223,7 +224,7 @@ trait HasValidationHelpers
      */
     protected function getPasswordRule(string $strength = 'moderate'): StrongPassword
     {
-        return match($strength) {
+        return match ($strength) {
             'basic' => StrongPassword::basic(),
             'strong' => StrongPassword::strong(),
             'moderate' => StrongPassword::moderate(),
@@ -277,7 +278,7 @@ trait HasValidationHelpers
      */
     protected function getAcademicGradeRule(string $system = 'percentage'): AcademicGrade
     {
-        return match($system) {
+        return match ($system) {
             'percentage' => AcademicGrade::percentage(),
             'gpa' => AcademicGrade::gpa(),
             'letter' => AcademicGrade::letterGrade(),
@@ -306,7 +307,7 @@ trait HasValidationHelpers
     {
         if ($this->has($field)) {
             $value = $this->input($field);
-            $normalized = match(strtolower((string) $value)) {
+            $normalized = match (strtolower((string) $value)) {
                 '1', 'true', 'yes', 'on' => true,
                 '0', 'false', 'no', 'off' => false,
                 default => $value,

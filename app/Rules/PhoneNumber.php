@@ -37,11 +37,13 @@ class PhoneNumber implements ValidationRule
 
         if (!$this->isValidFormat($phoneNumber)) {
             $fail('The :attribute must be a valid phone number.');
+
             return;
         }
 
         if ($this->requireCountryCode && !$this->hasCountryCode($phoneNumber)) {
             $fail('The :attribute must include a country code (e.g., +1, +44).');
+
             return;
         }
 

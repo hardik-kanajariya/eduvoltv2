@@ -48,6 +48,7 @@ class TenantExists implements ValidationRule
     public function forTenant(?int $tenantId): self
     {
         $this->tenantId = $tenantId;
+
         return $this;
     }
 }

@@ -75,7 +75,7 @@ class HealthController extends Controller
         try {
             $queueConnection = config('queue.default');
             $queueDriver = config("queue.connections.{$queueConnection}.driver");
-            
+
             $checks['queue'] = [
                 'status' => 'healthy',
                 'message' => "Queue system operational (driver: {$queueDriver})",

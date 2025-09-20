@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\Log;
 
 class TestQueueJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * The job should time out after this many seconds

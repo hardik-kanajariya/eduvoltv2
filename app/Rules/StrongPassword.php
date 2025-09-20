@@ -54,26 +54,31 @@ class StrongPassword implements ValidationRule
 
         if (strlen($password) < $this->minLength) {
             $fail("The :attribute must be at least {$this->minLength} characters long.");
+
             return;
         }
 
         if ($this->requireUppercase && !preg_match('/[A-Z]/', $password)) {
             $fail('The :attribute must contain at least one uppercase letter.');
+
             return;
         }
 
         if ($this->requireLowercase && !preg_match('/[a-z]/', $password)) {
             $fail('The :attribute must contain at least one lowercase letter.');
+
             return;
         }
 
         if ($this->requireNumbers && !preg_match('/[0-9]/', $password)) {
             $fail('The :attribute must contain at least one number.');
+
             return;
         }
 
         if ($this->requireSymbols && !preg_match('/[^A-Za-z0-9]/', $password)) {
             $fail('The :attribute must contain at least one special character.');
+
             return;
         }
 

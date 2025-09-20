@@ -74,6 +74,7 @@ class AcademicGrade implements ValidationRule
     {
         if (!is_numeric($value)) {
             $fail('The :attribute must be a numeric percentage.');
+
             return;
         }
 
@@ -91,6 +92,7 @@ class AcademicGrade implements ValidationRule
     {
         if (!is_numeric($value)) {
             $fail('The :attribute must be a numeric GPA value.');
+
             return;
         }
 
@@ -108,6 +110,7 @@ class AcademicGrade implements ValidationRule
     {
         if (!is_string($value)) {
             $fail('The :attribute must be a valid letter grade.');
+
             return;
         }
 
@@ -126,6 +129,7 @@ class AcademicGrade implements ValidationRule
     {
         if (!is_numeric($value)) {
             $fail('The :attribute must be a numeric value.');
+
             return;
         }
 
@@ -158,6 +162,7 @@ class AcademicGrade implements ValidationRule
     public static function letterGrade(array $allowedGrades = null): self
     {
         $allowedGrades = $allowedGrades ?? ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
+
         return new self(self::LETTER, 0, 0, $allowedGrades);
     }
 
@@ -174,7 +179,7 @@ class AcademicGrade implements ValidationRule
      */
     public static function forSystem(string $system): self
     {
-        return match($system) {
+        return match ($system) {
             'us_gpa' => self::gpa(),
             'uk_percentage' => self::percentage(),
             'canadian_percentage' => self::percentage(),
@@ -198,7 +203,7 @@ class AcademicGrade implements ValidationRule
         $numericValue = (float) $value;
 
         // Convert to percentage first
-        $percentage = match($fromSystem) {
+        $percentage = match ($fromSystem) {
             'gpa' => ($numericValue / 4.0) * 100,
             'percentage' => $numericValue,
             'german_grade' => (6.0 - $numericValue) / 5.0 * 100, // Reverse scale
@@ -208,7 +213,7 @@ class AcademicGrade implements ValidationRule
         };
 
         // Convert from percentage to target system
-        return match($toSystem) {
+        return match ($toSystem) {
             'gpa' => ($percentage / 100) * 4.0,
             'percentage' => $percentage,
             'german_grade' => 6.0 - (($percentage / 100) * 5.0),
