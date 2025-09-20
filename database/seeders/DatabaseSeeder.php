@@ -15,14 +15,18 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             TenantSeeder::class,
+            DemoAccountsSeeder::class,
         ]);
 
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'tenant_id' => 1, // Assign to the first tenant
-        ]);
+        // Only create test user if demo accounts are not enabled
+        if (!config('app.demo_accounts_enabled', false)) {
+            User::factory()->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'tenant_id' => 1, // Assign to the first tenant
+            ]);
+        }
     }
 }

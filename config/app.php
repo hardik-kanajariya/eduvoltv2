@@ -107,6 +107,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Demo Accounts Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This configuration determines whether demo accounts should be available
+    | on the login page for easy testing. When enabled, users can select
+    | from predefined demo accounts to quickly test different user roles.
+    |
+    */
+
+    'demo_accounts_enabled' => env('DEMO_ACCOUNTS_ENABLED', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |
