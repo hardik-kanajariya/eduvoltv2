@@ -112,8 +112,17 @@ sudo usermod -aG docker $USER
 # Install PHP 8.3+ and Composer
 apt-get update
 apt-get install -y php8.3 php8.3-cli php8.3-mbstring php8.3-xml php8.3-mysql php8.3-curl
-curl -sS https://getcomposer.org/installer | php
-mv composer.phar /usr/local/bin/composer
+# Secure Composer installation with hash verification
+EXPECTED_SIGNATURE="$(curl -sS https://composer.github.io/installer.sig)"
+curl -sS https://getcomposer.org/installer -o composer-setup.php
+ACTUAL_SIGNATURE="$(php -r "echo hash_file('SHA384', 'composer-setup.php');")"
+if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]; then
+    >&2 echo 'ERROR: Invalid installer signature'
+    rm composer-setup.php
+    exit 1
+fi
+php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+rm composer-setup.php
 ```
 
 ### Project Setup (When Source Code Exists)
