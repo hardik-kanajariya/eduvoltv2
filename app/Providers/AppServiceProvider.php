@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\PolicyRegistrationService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +12,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register the policy registration service
+        $this->app->singleton(PolicyRegistrationService::class);
     }
 
     /**
@@ -19,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Automatically register all policies
+        $this->app->make(PolicyRegistrationService::class)->registerPolicies();
     }
 }
