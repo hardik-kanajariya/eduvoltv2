@@ -62,7 +62,7 @@ class TenantScopingTest extends TestCase
     public function test_user_creation_auto_assigns_tenant_id(): void
     {
         $tenant = Tenant::factory()->create();
-        
+
         // Set tenant context
         TenantServiceProvider::setTenant($tenant->id);
 

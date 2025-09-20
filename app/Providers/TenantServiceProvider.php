@@ -18,6 +18,7 @@ class TenantServiceProvider extends ServiceProvider
 
         $this->app->singleton('current_tenant', function () {
             $tenantId = app('current_tenant_id');
+
             return $tenantId ? Tenant::find($tenantId) : null;
         });
     }
