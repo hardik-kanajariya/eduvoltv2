@@ -22,3 +22,15 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# PHP CS Fixer cache
+.php-cs-fixer.cache
+
+# Code coverage reports
+coverage.xml
+coverage/
+clover.xml
+
+# Static analysis
+phpstan.neon
+.phpstan.result.cache
