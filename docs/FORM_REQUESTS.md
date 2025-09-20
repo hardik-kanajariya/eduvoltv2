@@ -103,6 +103,24 @@ public function rules(): array
 }
 ```
 
+### AcademicGrade
+
+Validates academic grades across different grading systems:
+
+```php
+use App\Rules\AcademicGrade;
+
+'percentage_grade' => ['required', AcademicGrade::percentage()], // 0-100
+'gpa_grade' => ['required', AcademicGrade::gpa()], // 0.0-4.0  
+'letter_grade' => ['required', AcademicGrade::letterGrade()], // A+ to F
+'custom_grade' => ['required', AcademicGrade::customScale(1.0, 10.0)], // Custom range
+'german_grade' => ['required', AcademicGrade::forSystem('german_grade')], // 1-6 scale
+'french_grade' => ['required', AcademicGrade::forSystem('french_grade')], // 0-20 scale
+
+// Custom letter grades
+'performance' => ['required', AcademicGrade::letterGrade(['Excellent', 'Good', 'Average', 'Poor'])],
+```
+
 ## Custom Validation Rules
 
 ### TenantExists
@@ -348,6 +366,8 @@ class ExampleRequest extends BaseFormRequest
 - `getGenderRules()`: Gender field validation
 - `getPriorityRules()`: Priority field validation
 - `getBooleanRules()`: Boolean field validation
+- `getAcademicGradeRule($system)`: Academic grade validation for different systems
+- `getGradingScaleRules($scale)`: Complete grading scale validation rules
 
 ## Best Practices
 

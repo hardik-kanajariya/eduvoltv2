@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Traits;
 
+use App\Rules\AcademicGrade;
 use App\Rules\PhoneNumber;
 use App\Rules\StrongPassword;
 use App\Rules\TenantExists;
@@ -268,6 +269,33 @@ trait HasValidationHelpers
         return [
             'nullable',
             'in:0,1,true,false,yes,no',
+        ];
+    }
+
+    /**
+     * Get academic grade validation rule for different grading systems.
+     */
+    protected function getAcademicGradeRule(string $system = 'percentage'): AcademicGrade
+    {
+        return match($system) {
+            'percentage' => AcademicGrade::percentage(),
+            'gpa' => AcademicGrade::gpa(),
+            'letter' => AcademicGrade::letterGrade(),
+            'german' => AcademicGrade::forSystem('german_grade'),
+            'french' => AcademicGrade::forSystem('french_grade'),
+            'australian' => AcademicGrade::forSystem('australian_gpa'),
+            default => AcademicGrade::percentage(),
+        };
+    }
+
+    /**
+     * Get validation rules for different grading scales.
+     */
+    protected function getGradingScaleRules(string $scale = 'percentage'): array
+    {
+        return [
+            'required',
+            $this->getAcademicGradeRule($scale),
         ];
     }
 
